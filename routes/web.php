@@ -35,19 +35,20 @@ Route::middleware('check.user')->group(function () {
 
     // Dashboard
     Route::prefix('dashboard')->name('dashboard.')->group(function () {
-        Route::get('/buyer', [DashboardController::class, 'buyer'])->name('buyer');
-        Route::get('/seller', [DashboardController::class, 'seller'])->name('seller');
+        Route::get('/{buyer}/buyer', [DashboardController::class, 'buyer'])->name('buyer');
+        Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller');
     });
 
     // Product
     Route::prefix('product')->name('product.')->group(function () {
         Route::get('/create', [ProductController::class, 'create'])->name('create');
         Route::post('/create', [ProductController::class, 'store']);
-        Route::get('/edit', [ProductController::class, 'edit'])->name('edit');
-        Route::post('/edit', [ProductController::class, 'update']);
         Route::get('/confirm_order', [OrderController::class, 'confirmOrder'])->name('confirm');
         Route::get('/view_receipt', [OrderController::class, 'viewReceipt'])->name('receipt');
-        Route::get('/view', [ProductController::class, 'view'])->name('view');
+
+        Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
+        Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
+        Route::post('/{product}/edit', [ProductController::class, 'update']);
     });
 
     // Profile edits

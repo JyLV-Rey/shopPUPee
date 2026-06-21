@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Buyer;
+use App\Models\Seller;
 
 class DashboardController extends Controller
 {
-    public function buyer(Request $request)
+    public function buyer(Buyer $buyer)
     {
-        return view('dashboard.buyer', [
-            'buyerId' => $request->query('buyerId'),
-        ]);
+        return view('dashboard.buyer', compact('buyer'));
     }
 
-    public function seller(Request $request)
+    public function seller(Seller $seller)
     {
-        return view('dashboard.seller', [
-            'sellerId' => $request->query('sellerId'),
-        ]);
+        $buyer = $seller->buyer;
+
+        return view('dashboard.seller', compact('buyer', 'seller'));
     }
 }

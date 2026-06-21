@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function view(Request $request)
+    public function view(Product $product)
     {
-        return view('product.view', [
-            'productId' => $request->query('productId'),
-        ]);
+        return view('product.view', compact('product'));
     }
 
     public function create()
@@ -23,14 +22,12 @@ class ProductController extends Controller
         // TODO: handle product creation POST
     }
 
-    public function edit(Request $request)
+    public function edit(Product $product)
     {
-        return view('product.edit', [
-            'productId' => $request->query('productId'),
-        ]);
+        return view('product.edit', compact('product'));
     }
 
-    public function update(Request $request)
+    public function update(Request $request, Product $product)
     {
         // TODO: handle product update POST
     }
