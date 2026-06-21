@@ -15,10 +15,15 @@ class CheckAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check()) {
-            return redirect()->guest(route('account.login'));
+            return redirect()->route('account.login')->withErrors([
+                'email' => 'This account has been deactivated.',
+            ]);
         }
 
-        if (! Auth::user()->isAdmin()) {
+        /** @var \App\Models\Buyer $user */
+        $user = Auth::user();
+
+        if (! $user->isAdmin()) {
             abort(403, 'Unauthorized — admin access only.');
         }
 

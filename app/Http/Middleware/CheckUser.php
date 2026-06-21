@@ -19,6 +19,7 @@ class CheckUser
             return redirect()->guest(route('account.login'));
         }
 
+        /** @var \App\Models\Buyer $user */
         $user = Auth::user();
 
         if (! $user->isActive()) {
