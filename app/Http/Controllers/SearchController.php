@@ -9,7 +9,7 @@ class SearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::where('is_deleted', false);
+        $query = Product::where('is_deleted', false); // Make sure product is not deleted!
 
         // Each subsequent condition is only applied if the corresponding query parameter is present, allowing for flexible search combinations.
         // It is just a concatination of where clauses if the query parameters are present, and the final get() method executes the query and retrieves the results.
@@ -54,10 +54,18 @@ class SearchController extends Controller
         }
 
         // Finally execute the query, hinted by the get() method
-        $products = $query->orderBy($sortBy, $direction)->get();
+        $products = $query->with(['images', 'seller'])->orderBy($sortBy, $direction)->get();
+
+        $categories = Product::where('is_deleted', false)
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category')
+            ->sort()
+            ->values();
 
         return view('search.index', [
             'products' => $products,
+            'categories' => $categories,
             'searchTerm' => $request->query('searchTerm'),
             'searchCategory' => $request->query('searchCategory'),
             'sortBy' => $request->query('sortBy', 'name'),
