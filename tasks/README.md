@@ -35,3 +35,5 @@ Each task doc references specific pages in `migration_info/` — those describe 
 6. Soft deletes use `is_deleted` boolean (not Laravel's SoftDeletes trait)
 7. Always eager-load relationships to avoid N+1 queries
 8. MAKE YOUR OWN FOLDER!!!!!!
+
+MAKE YOUR BRANCH YOUR SURNAME
