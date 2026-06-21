@@ -59,6 +59,7 @@ CREATE TABLE public.buyer (
   created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   is_deleted boolean NOT NULL DEFAULT false,
   last_name text NOT NULL,
+  is_admin boolean NOT NULL DEFAULT false,
   CONSTRAINT buyer_pkey PRIMARY KEY (buyer_id)
 );
 CREATE TABLE public.cancel (

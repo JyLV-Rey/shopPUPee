@@ -13,57 +13,58 @@ use App\Http\Controllers\AdminController;
 
 //  Public routes 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
-Route::get('/product/view', [ProductController::class, 'view'])->name('product.view');
-
 //  Guest-only (not logged in) 
-Route::middleware('guest')->group(function () {
-    Route::get('/account/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/account/login', [AuthController::class, 'login']);
+Route::middleware('guest')->prefix('account')->name('account.')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
 
-    Route::get('/account/create', [AuthController::class, 'showCreateAccount'])->name('register');
-    Route::post('/account/create', [AuthController::class, 'createAccount']);
+    Route::get('/create', [AuthController::class, 'showCreateAccount'])->name('create');
+    Route::post('/create', [AuthController::class, 'createAccount']);
 
-    Route::get('/account/create/seller', [AuthController::class, 'showCreateSeller'])->name('register.seller');
-    Route::post('/account/create/seller', [AuthController::class, 'createSeller']);
+    Route::get('/create/seller', [AuthController::class, 'showCreateSeller'])->name('create.seller');
+    Route::post('/create/seller', [AuthController::class, 'createSeller']);
 });
 
 //  Authenticated (check.user) 
 Route::middleware('check.user')->group(function () {
-    // Auth
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
 
     // Dashboard
-    Route::get('/dashboard/buyer', [DashboardController::class, 'buyer'])->name('dashboard.buyer');
-    Route::get('/dashboard/seller', [DashboardController::class, 'seller'])->name('dashboard.seller');
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+        Route::get('/buyer', [DashboardController::class, 'buyer'])->name('buyer');
+        Route::get('/seller', [DashboardController::class, 'seller'])->name('seller');
+    });
 
-    // Cart
-    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    // Product
+    Route::prefix('product')->name('product.')->group(function () {
+        Route::get('/create', [ProductController::class, 'create'])->name('create');
+        Route::post('/create', [ProductController::class, 'store']);
+        Route::get('/edit', [ProductController::class, 'edit'])->name('edit');
+        Route::post('/edit', [ProductController::class, 'update']);
+        Route::get('/confirm_order', [OrderController::class, 'confirmOrder'])->name('confirm');
+        Route::get('/view_receipt', [OrderController::class, 'viewReceipt'])->name('receipt');
+        Route::get('/view', [ProductController::class, 'view'])->name('view');
+    });
 
-    // Orders
-    Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
-    Route::get('/product/confirm_order', [OrderController::class, 'confirmOrder'])->name('order.confirm');
-    Route::get('/product/view_receipt', [OrderController::class, 'viewReceipt'])->name('order.receipt');
-
-    // Products (authenticated: seller-gated in controller)
-    Route::get('/product/create', [ProductController::class, 'create'])->name('product.create');
-    Route::post('/product/create', [ProductController::class, 'store']);
-    Route::get('/product/edit', [ProductController::class, 'edit'])->name('product.edit');
-    Route::post('/product/edit', [ProductController::class, 'update']);
-
-    // Profile
-    Route::get('/edit/buyer', [ProfileController::class, 'editBuyer'])->name('profile.edit.buyer');
-    Route::post('/edit/buyer', [ProfileController::class, 'updateBuyer']);
-    Route::get('/edit/seller', [ProfileController::class, 'editSeller'])->name('profile.edit.seller');
-    Route::post('/edit/seller', [ProfileController::class, 'updateSeller']);
+    // Profile edits
+    Route::prefix('edit')->name('edit.')->group(function () {
+        Route::get('/buyer', [ProfileController::class, 'editBuyer'])->name('buyer');
+        Route::post('/buyer', [ProfileController::class, 'updateBuyer']);
+        Route::get('/seller', [ProfileController::class, 'editSeller'])->name('seller');
+        Route::post('/seller', [ProfileController::class, 'updateSeller']);
+        Route::get('/address', [ProfileController::class, 'editAddress'])->name('address');
+        Route::post('/address', [ProfileController::class, 'updateAddress']);
+    });
 
     // Addresses
-    Route::get('/edit/address', [ProfileController::class, 'editAddress'])->name('address.edit');
-    Route::post('/edit/address', [ProfileController::class, 'updateAddress']);
-    Route::get('/add/address', [ProfileController::class, 'addAddress'])->name('address.add');
-    Route::post('/add/address', [ProfileController::class, 'storeAddress']);
+    Route::prefix('add')->name('address.')->group(function () {
+        Route::get('/address', [ProfileController::class, 'addAddress'])->name('add');
+        Route::post('/address', [ProfileController::class, 'storeAddress']);
+    });
 });
 
 //  Admin-only (check.admin) 
