@@ -18,6 +18,90 @@ Pick one task, read the corresponding file, and implement the controller logic +
 
 Each task doc references specific pages in `migration_info/` — those describe how the original React app worked, what data it displayed, and what Supabase queries it ran. Use them as the source of truth for what each page should show.
 
+---
+
+## Using Chart.js for dashboards
+
+Chart.js is installed and wired into Vite. Usage is dead simple:
+
+### 1. Pass chart data from your controller
+
+In your controller method, build arrays for labels and datasets:
+
+```php
+public function buyer(Buyer $buyer)
+{
+    $categoryData = DB::table('order_item')
+        ->join('order', 'order_item.order_id', '=', 'order.order_id')
+        ->join('product', 'order_item.product_id', '=', 'product.product_id')
+        ->where('order.buyer_id', $buyer->buyer_id)
+        ->select('product.category', DB::raw('SUM(order_item.quantity) as total'))
+        ->groupBy('product.category')
+        ->get();
+
+    return view('dashboard.buyer', [
+        'buyer' => $buyer,
+        'chartCategories' => [
+            'labels' => $categoryData->pluck('category'),
+            'values' => $categoryData->pluck('total'),
+        ],
+    ]);
+}
+```
+
+### 2. Load the charts JS on your page
+
+```blade
+@section('content')
+    @vite('resources/js/charts.js')
+    ...
+@endsection
+```
+
+### 3. Use the `<x-chart>` component
+
+```blade
+<x-chart
+    id="categoryChart"
+    type="doughnut"
+    :labels="$chartCategories['labels']"
+    :datasets="[[
+        'data' => $chartCategories['values'],
+        'backgroundColor' => ['#4f46e5', '#a855f7', '#06b6d4', '#22c55e', '#f59e0b'],
+    ]]"
+    title="Top Categories"
+/>
+```
+
+### Supported chart types
+
+| `type` | Renders |
+|---|---|
+| `bar` | Vertical bar chart |
+| `line` | Line chart |
+| `doughnut` | Doughnut/pie chart |
+| `pie` | Pie chart |
+| `radar` | Radar chart |
+| `polarArea` | Polar area chart |
+
+### Custom dataset options
+
+The component accepts full Chart.js dataset objects, so you can pass extra options:
+
+```blade
+:datasets="[[
+    'label' => 'Sales',
+    'data' => [12, 19, 3, 5],
+    'backgroundColor' => '#4f46e5',
+    'borderColor' => '#312e81',
+    'borderWidth' => 2,
+    'tension' => 0.3,        // for line charts — smooth curves
+    'fill' => true,           // fill area under line
+]]"
+```
+
+---
+
 ## Common rules
 
 1. All views extend `common.index`:
