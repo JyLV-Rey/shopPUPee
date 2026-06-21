@@ -6,6 +6,7 @@ use Database\Factories\BuyerFactory;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -50,9 +51,9 @@ class Buyer extends Authenticatable
         return ! (bool) ($this->is_deleted ?? false);
     }
 
-    public function sellers(): HasMany
+    public function seller(): HasOne
     {
-        return $this->hasMany(Seller::class, 'buyer_id', 'buyer_id');
+        return $this->hasOne(Seller::class, 'buyer_id', 'buyer_id');
     }
 
     public function addresses(): HasMany
