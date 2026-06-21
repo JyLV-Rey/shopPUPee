@@ -2,24 +2,24 @@
 <html lang="en" data-theme="cupcake">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-  <link href="frutiger.css" rel="stylesheet">
-  <link href="index.css" rel="stylesheet">
+    <link href="frutiger.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
 
-  <title>@yield('title')</title>
+    <title>@yield('title')</title>
 </head>
 
 <body>
-  <div class="flex flex-col min-h-screen">
-    @include('common.navbar')
+    <div class="flex flex-col min-h-screen">
+        @include('common.navbar')
 
-    <main class="flex-grow">
-      @yield('content')
-    </main>
+        <main class="flex-grow">
+            @yield('content')
+        </main>
 
-    @include('common.footer')
-  </div>
+        @include('common.footer')
+    </div>
 </body>
