@@ -14,8 +14,12 @@ class CheckAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::check() || ! Auth::user()->is_admin) {
-            abort(403, 'Unauthorized — admin access required.');
+        if (! Auth::check()) {
+            return redirect()->guest(route('account.login'));
+        }
+
+        if (! Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized — admin access only.');
         }
 
         return $next($request);
