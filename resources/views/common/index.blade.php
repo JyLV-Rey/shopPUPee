@@ -13,13 +13,13 @@
 </head>
 
 <body>
-  <div>
-    <div>
-      <button class="btn btn-xs">Xsmall</button>
-<button class="btn btn-sm">Small</button>
-<button class="btn">Medium</button>
-<button class="btn btn-lg">Large</button>
-<button class="btn btn-xl">Xlarge</button>
-    </div>
+  <div class="flex flex-col min-h-screen">
+    @include('common.navbar')
+
+    <main class="flex-grow">
+      @yield('content')
+    </main>
+
+    @include('common.footer')
   </div>
 </body>
