@@ -9,6 +9,8 @@ class ProductController extends Controller
 {
     public function view(Product $product)
     {
+        $product->load(['images', 'seller', 'reviews.buyer']);
+
         return view('product.view', compact('product'));
     }
 
