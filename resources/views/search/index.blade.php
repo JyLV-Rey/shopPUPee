@@ -111,7 +111,7 @@
   @else
     <div class="flex items-center justify-between mb-4">
       <p class="text-sm text-base-content/60">
-        {{ $products->count() }} product{{ $products->count() !== 1 ? 's' : '' }} found
+        {{ $products->total() }} product{{ $products->total() !== 1 ? 's' : '' }} found
       </p>
     </div>
 
@@ -120,6 +120,8 @@
         <x-product_box :product="$product" />
       @endforeach
     </div>
+
+    <x-pagination :paginator="$products" />
   @endif
 </div>
 

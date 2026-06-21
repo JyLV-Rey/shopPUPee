@@ -53,8 +53,8 @@ class SearchController extends Controller
             $sortBy = 'name';
         }
 
-        // Finally execute the query, hinted by the get() method
-        $products = $query->with(['images', 'seller'])->orderBy($sortBy, $direction)->get();
+        // Finally execute the query
+        $products = $query->with(['images', 'seller'])->orderBy($sortBy, $direction)->paginate(12);
 
         $categories = Product::where('is_deleted', false)
             ->whereNotNull('category')

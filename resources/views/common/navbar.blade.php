@@ -1,6 +1,10 @@
-<div class="navbar bg-base-100 shadow-sm">
+<div
+    class="
+  bg-base-100/90 text-base-content sticky top-0 z-30 flex h-16 w-full [transform:translate3d(0,0,0)] justify-center backdrop-blur transition-shadow duration-100 print:hidden
+  shadow-xs px-4
+  ">
     <div class="navbar-start">
-        <a class="btn btn-ghost text-xl">daisyUI</a>
+        <a class="btn btn-ghost text-xl" href="/">shopPUPee</a>
     </div>
 
     <div class="navbar-center hidden lg:flex">
