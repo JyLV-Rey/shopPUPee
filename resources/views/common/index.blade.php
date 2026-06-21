@@ -9,6 +9,7 @@
     <link href="frutiger.css" rel="stylesheet">
     <link href="index.css" rel="stylesheet">
 
+    <link rel="icon" type="image/png" href="/logo.png" />
     <title>@yield('title')</title>
 </head>
 
