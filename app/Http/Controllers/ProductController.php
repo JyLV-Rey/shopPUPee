@@ -34,7 +34,7 @@ class ProductController extends Controller
             'image_url' => 'nullable|url'
         ]);
 
-        Product::create([
+        $product = Product::create([
             'seller_id' => Auth::user()->seller->seller_id,
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
@@ -55,11 +55,31 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('product.edit', compact('product'));
+        $categories = Product::select('category')->distinct()->pluck('category');
+
+        return view('product.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
-        // TODO: handle product update POST
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
+            'category' => 'required|string|max:255',
+            'image_url' => 'nullable|url'
+        ]);
+
+        $product->update([
+            'seller_id' => Auth::user()->seller->seller_id,
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'price' => $validatedData['price'],
+            'quantity' => $validatedData['quantity'],
+            'category' => $validatedData['category'],
+        ]);
+
+        return redirect()->route('product.view', $product)->with('success', 'Product Updated Successfully!');
     }
 }
