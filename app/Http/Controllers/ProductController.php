@@ -16,7 +16,9 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('product.create');
+        $categories = Product::select('category')->distinct()->pluck('category');
+
+        return view('product.create', compact('categories'));
     }
 
     public function store(Request $request)
