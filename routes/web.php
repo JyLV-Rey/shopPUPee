@@ -51,7 +51,7 @@ Route::middleware('check.user')->group(function () {
 
         Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
         Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
-        Route::post('/{product}/edit', [ProductController::class, 'update']);
+        Route::put('/{product}/update', [ProductController::class, 'update'])->name('update');
     });
 
     // Profile edits

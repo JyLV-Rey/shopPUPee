@@ -63,7 +63,6 @@ class AuthController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => $request->password,
-            'is_admin' => false,
         ]);
 
         return redirect()->route('account.login', ['accountCreated' => true]);
@@ -109,7 +108,7 @@ class AuthController extends Controller
                 'seller_name' => $request->seller_name,
                 'valid_id_url' => $request->valid_id_url,
                 'address_id' => $address->address_id,
-                'status' => 'pending',
+                'status' => 'Pending',
             ]);
         });
 
