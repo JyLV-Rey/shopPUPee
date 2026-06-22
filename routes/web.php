@@ -22,14 +22,17 @@ Route::middleware('guest')->prefix('account')->name('account.')->group(function 
 
     Route::get('/create', [AuthController::class, 'showCreateAccount'])->name('create');
     Route::post('/create', [AuthController::class, 'createAccount']);
-
-    Route::get('/create/seller', [AuthController::class, 'showCreateSeller'])->name('create.seller');
-    Route::post('/create/seller', [AuthController::class, 'createSeller']);
 });
 
 //  Authenticated (check.user) 
 Route::middleware('check.user')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::prefix('account')->name('account.')->group(function () {
+        Route::get('/create/seller', [AuthController::class, 'showCreateSeller'])->name('create.seller');
+        Route::post('/create/seller', [AuthController::class, 'createSeller']);
+    });
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
     Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
 
@@ -48,7 +51,7 @@ Route::middleware('check.user')->group(function () {
 
         Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
         Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
-        Route::post('/{product}/edit', [ProductController::class, 'update']);
+        Route::put('/{product}/update', [ProductController::class, 'update'])->name('update');
     });
 
     // Profile edits
