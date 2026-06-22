@@ -1,14 +1,14 @@
 @extends('common.index')
 
-@section('title', 'Create Product')
+@section('title', 'Edit Product')
 
 @section('content')
     <div class="container mx-auto p-4 max-w-2xl">
-        <h1 class="text-3xl font-bold mb-6">Create a New Product</h1>
+        <h1 class="text-3xl font-bold mb-6">Edit Product</h1>
 
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
-                <form action="{{ route('product.update') }}" method="POST">
+                <form action="{{ route('product.update', $product) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <!-- 1. PRODUCT NAME INPUT -->
@@ -74,7 +74,7 @@
 
                     <!-- SUBMIT BUTTON -->
                     <div class="form-control mt-6">
-                        <button type="submit" class="btn btn-primary">Publish Product</button>
+                        <button type="submit" class="btn btn-primary">Update Product</button>
                     </div>
 
                 </form>
