@@ -10,119 +10,164 @@ class DashboardController extends Controller
 {
     public function buyer(Buyer $buyer)
     {
-        // Eager load all needed relations in one shot
-        $buyer->load([
-            'orders.items.product.seller',
-            'orders.payment',
-            'reviews.product',
-        ]);
+        $buyerId = $buyer->buyer_id;
 
-        // ── Aggregate stats ──────────────────────────────────────────────────
+        // ── Aggregate stats (pure SQL — fast on PostgreSQL) ───────────────
         $totalSpent = DB::table('order_item')
             ->join('order', 'order_item.order_id', '=', 'order.order_id')
             ->join('product', 'order_item.product_id', '=', 'product.product_id')
-            ->where('order.buyer_id', $buyer->buyer_id)
+            ->where('order.buyer_id', $buyerId)
             ->whereRaw('NOT order.is_deleted')
             ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
             ->sum(DB::raw('product.price * order_item.quantity'));
 
-        $totalOrdersPlaced = $buyer->orders->where('is_deleted', false)->count();
+        $totalOrdersPlaced = DB::table('order')
+            ->where('buyer_id', $buyerId)
+            ->whereRaw('NOT is_deleted')
+            ->count();
 
-        $totalCancelledOrders = $buyer->orders
-            ->where('is_deleted', false)
+        $totalCancelledOrders = DB::table('order')
+            ->where('buyer_id', $buyerId)
+            ->whereRaw('NOT is_deleted')
             ->where('status', 'Cancelled')
             ->count();
 
-        $totalRefunds = $buyer->orders
-            ->where('is_deleted', false)
+        $totalRefunds = DB::table('order')
+            ->where('buyer_id', $buyerId)
+            ->whereRaw('NOT is_deleted')
             ->where('status', 'Refunded')
             ->count();
 
-        // ── Chart data ────────────────────────────────────────────────────────
-        // All non-deleted orders
-        $orders = $buyer->orders->where('is_deleted', false);
+        // ── 1. Top Categories — most-purchased product categories ─────────
+        $topCategories = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select('product.category', DB::raw('SUM(order_item.quantity) as total'))
+            ->groupBy('product.category')
+            ->orderBy('total', 'desc')
+            ->limit(7)
+            ->get()
+            ->pluck('total', 'category');
 
-        // 1. Top Categories Doughnut — most-purchased product categories
-        $topCategories = $orders->flatMap(fn($o) => $o->items)
-            ->groupBy(fn($item) => $item->product?->category ?? 'Unknown')
-            ->map(fn($items) => $items->sum('quantity'))
-            ->sortByDesc(fn($qty) => $qty)
-            ->take(7);
+        // ── 2. Spending Over Time — per month ─────────────────────────────
+        $spendingOverTime = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select(DB::raw("to_char(order.ordered_at, 'YYYY-MM') as month"), DB::raw('SUM(product.price * order_item.quantity) as total'))
+            ->groupBy(DB::raw("to_char(order.ordered_at, 'YYYY-MM')"))
+            ->orderBy('month')
+            ->get()
+            ->pluck('total', 'month');
 
-        // 2. Spending Over Time Line — total spent per month
-        $spendingOverTime = $orders
-            ->whereNotIn('status', ['Cancelled', 'Refunded'])
-            ->groupBy(fn($o) => $o->ordered_at?->format('Y-m'))
-            ->map(fn($monthOrders) =>
-                $monthOrders->flatMap(fn($o) => $o->items)
-                    ->sum(fn($item) => ($item->product?->price ?? 0) * $item->quantity)
-            )
-            ->sortKeys();
+        // ── 3. Spend by Category ──────────────────────────────────────────
+        $spendByCategory = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select('product.category', DB::raw('SUM(product.price * order_item.quantity) as total'))
+            ->groupBy('product.category')
+            ->orderBy('total', 'desc')
+            ->limit(8)
+            ->get()
+            ->pluck('total', 'category');
 
-        // 3. Spend by Category Bar — total spend per category
-        $spendByCategory = $orders
-            ->whereNotIn('status', ['Cancelled', 'Refunded'])
-            ->flatMap(fn($o) => $o->items)
-            ->groupBy(fn($item) => $item->product?->category ?? 'Unknown')
-            ->map(fn($items) => $items->sum(fn($i) => ($i->product?->price ?? 0) * $i->quantity))
-            ->sortByDesc(fn($v) => $v)
-            ->take(8);
+        // ── 4. Purchase Frequency — orders per month ──────────────────────
+        $purchaseFrequency = DB::table('order')
+            ->where('buyer_id', $buyerId)
+            ->whereRaw('NOT is_deleted')
+            ->select(DB::raw("to_char(ordered_at, 'YYYY-MM') as month"), DB::raw('COUNT(*) as total'))
+            ->groupBy(DB::raw("to_char(ordered_at, 'YYYY-MM')"))
+            ->orderBy('month')
+            ->get()
+            ->pluck('total', 'month');
 
-        // 4. Purchase Frequency Bar — how many orders per month
-        $purchaseFrequency = $orders
-            ->groupBy(fn($o) => $o->ordered_at?->format('Y-m'))
-            ->map(fn($g) => $g->count())
-            ->sortKeys();
+        // ── 5. Top Products by quantity ───────────────────────────────────
+        $topProducts = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select('product.name', DB::raw('SUM(order_item.quantity) as total'))
+            ->groupBy('product.name')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get()
+            ->pluck('total', 'name');
 
-        // 5. Top Products Bar — most-purchased products by quantity
-        $topProducts = $orders->flatMap(fn($o) => $o->items)
-            ->groupBy(fn($item) => $item->product?->name ?? 'Unknown')
-            ->map(fn($items) => $items->sum('quantity'))
-            ->sortByDesc(fn($qty) => $qty)
-            ->take(5);
+        // ── 6. Review Ratings distribution ────────────────────────────────
+        $reviewCounts = DB::table('review')
+            ->where('buyer_id', $buyerId)
+            ->select('rating', DB::raw('COUNT(*) as total'))
+            ->groupBy('rating')
+            ->orderBy('rating')
+            ->get()
+            ->keyBy('rating');
 
-        // 6. Review Ratings Bar — distribution of review ratings (1-5 stars)
         $reviewRatings = collect([1, 2, 3, 4, 5])
-            ->mapWithKeys(fn($star) => [
-                $star => $buyer->reviews->where('rating', $star)->count(),
-            ]);
+            ->mapWithKeys(fn($star) => [$star => (int) ($reviewCounts->get($star)?->total ?? 0)]);
 
-        // 7. Preferred Sellers Doughnut — spend grouped by seller name
-        $preferredSellers = $orders
-            ->whereNotIn('status', ['Cancelled', 'Refunded'])
-            ->flatMap(fn($o) => $o->items)
-            ->groupBy(fn($item) => $item->product?->seller?->seller_name ?? 'Unknown')
-            ->map(fn($items) => $items->sum(fn($i) => ($i->product?->price ?? 0) * $i->quantity))
-            ->sortByDesc(fn($v) => $v)
-            ->take(7);
+        // ── 7. Preferred Sellers by spend ─────────────────────────────────
+        $preferredSellers = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->join('seller', 'product.seller_id', '=', 'seller.seller_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereRaw('NOT seller.is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select('seller.seller_name', DB::raw('SUM(product.price * order_item.quantity) as total'))
+            ->groupBy('seller.seller_name')
+            ->orderBy('total', 'desc')
+            ->limit(7)
+            ->get()
+            ->pluck('total', 'seller_name');
 
-        // 8. Payment Methods Pie — order count by payment method
-        $paymentMethods = $orders
-            ->mapWithKeys(fn($o) => [$o->order_id => $o->payment?->payment_method ?? 'Unknown'])
-            ->groupBy(fn($method) => $method)
-            ->map(fn($g) => $g->count());
+        // ── 8. Payment Methods ────────────────────────────────────────────
+        $paymentMethods = DB::table('payment')
+            ->join('order', 'payment.order_id', '=', 'order.order_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->select('payment.payment_method', DB::raw('COUNT(*) as total'))
+            ->groupBy('payment.payment_method')
+            ->get()
+            ->pluck('total', 'payment_method');
 
-        // 9. Most Expensive Items Bar — top 5 items by unit price
-        $mostExpensiveItems = $orders->flatMap(fn($o) => $o->items)
-            ->filter(fn($i) => $i->product !== null)
-            ->unique(fn($i) => $i->product_id)
-            ->sortByDesc(fn($i) => (float) $i->product->price)
-            ->take(5)
-            ->map(fn($i) => [
-                'name'  => $i->product->name,
-                'price' => (float) $i->product->price,
-            ]);
+        // ── 9. Most Expensive Items (top 5 by unit price) ─────────────────
+        $mostExpensiveItems = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereRaw('NOT product.is_deleted')
+            ->select('product.product_id', 'product.name', 'product.price')
+            ->distinct('product.product_id')
+            ->orderBy('product.price', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(fn($r) => ['name' => $r->name, 'price' => (float) $r->price]);
 
-        // 10. Least Expensive Items Bar — bottom 5 items by unit price
-        $leastExpensiveItems = $orders->flatMap(fn($o) => $o->items)
-            ->filter(fn($i) => $i->product !== null)
-            ->unique(fn($i) => $i->product_id)
-            ->sortBy(fn($i) => (float) $i->product->price)
-            ->take(5)
-            ->map(fn($i) => [
-                'name'  => $i->product->name,
-                'price' => (float) $i->product->price,
-            ]);
+        // ── 10. Least Expensive Items (bottom 5 by unit price) ────────────
+        $leastExpensiveItems = DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->where('order.buyer_id', $buyerId)
+            ->whereRaw('NOT order.is_deleted')
+            ->whereRaw('NOT product.is_deleted')
+            ->select('product.product_id', 'product.name', 'product.price')
+            ->distinct('product.product_id')
+            ->orderBy('product.price', 'asc')
+            ->limit(5)
+            ->get()
+            ->map(fn($r) => ['name' => $r->name, 'price' => (float) $r->price]);
 
         return view('dashboard.buyer', compact(
             'buyer',
