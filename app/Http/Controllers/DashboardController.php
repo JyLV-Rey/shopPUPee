@@ -196,13 +196,16 @@ class DashboardController extends Controller
         // 1. Top Selling Products (qty sold per product)
         $topSellingProducts = $seller->products
             ->mapWithKeys(fn($p) => [
-                $p->name => $p->orderItems
-                    ->filter(fn($oi) => $oi->order
-                        && ! $oi->order->is_deleted
-                        && ! in_array($oi->order->status, ['Cancelled', 'Refunded']))
-                    ->sum('quantity'),
+                $p->product_id => [
+                    'name'     => $p->name,
+                    'quantity' => $p->orderItems
+                        ->filter(fn($oi) => $oi->order
+                            && ! $oi->order->is_deleted
+                            && ! in_array($oi->order->status, ['Cancelled', 'Refunded']))
+                        ->sum('quantity'),
+                ],
             ])
-            ->sortByDesc(fn($qty) => $qty)
+            ->sortByDesc(fn($entry) => $entry['quantity'])
             ->take(5);
 
         // 2. Top Categories Bar (units sold per category)
@@ -233,8 +236,13 @@ class DashboardController extends Controller
 
         // 5. Top Reviewed Products
         $topReviewedProducts = $seller->products
-            ->mapWithKeys(fn($p) => [$p->name => $p->reviews->count()])
-            ->sortByDesc(fn($cnt) => $cnt)
+            ->mapWithKeys(fn($p) => [
+                $p->product_id => [
+                    'name'   => $p->name,
+                    'count'  => $p->reviews->count(),
+                ],
+            ])
+            ->sortByDesc(fn($entry) => $entry['count'])
             ->take(5);
 
         // 6. Earnings by Category Doughnut
@@ -269,14 +277,24 @@ class DashboardController extends Controller
         $mostExpensiveProducts = $seller->products
             ->sortByDesc(fn($p) => (float) $p->price)
             ->take(5)
-            ->mapWithKeys(fn($p) => [$p->name => (float) $p->price]);
+            ->mapWithKeys(fn($p) => [
+                $p->product_id => [
+                    'name'  => $p->name,
+                    'price' => (float) $p->price,
+                ],
+            ]);
 
         // 9. Least Expensive Products (active only)
         $leastExpensiveProducts = $seller->products
             ->filter(fn($p) => ! $p->is_deleted)
             ->sortBy(fn($p) => (float) $p->price)
             ->take(5)
-            ->mapWithKeys(fn($p) => [$p->name => (float) $p->price]);
+            ->mapWithKeys(fn($p) => [
+                $p->product_id => [
+                    'name'  => $p->name,
+                    'price' => (float) $p->price,
+                ],
+            ]);
 
         // 10. Order Status Distribution
         $orderStatusDist = $sellerOrders
