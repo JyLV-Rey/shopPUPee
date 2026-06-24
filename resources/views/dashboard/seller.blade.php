@@ -1,3 +1,4 @@
+@use('Illuminate\Support\Js')
 @extends('common.index')
 
 @section('title', $seller->seller_name . ' — Seller Dashboard')
@@ -392,10 +393,10 @@
     new Chart(getCtx('chart-monthly-earnings'), {
         type: 'line',
         data: {
-            labels: {!! json_encode($monthlyEarnings->keys()->values()) !!},
+            labels: {{ Js::from($monthlyEarnings->keys()->values()) }},
             datasets: [{
                 label: 'Revenue (₱)',
-                data: {!! json_encode($monthlyEarnings->values()) !!},
+                data: {{ Js::from($monthlyEarnings->values()) }},
                 borderColor: '#8b5cf6',
                 backgroundColor: 'rgba(139,92,246,0.15)',
                 fill: true,
@@ -412,10 +413,10 @@
     new Chart(getCtx('chart-top-products'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($topSellingProducts->keys()->values()) !!},
+            labels: {{ Js::from($topSellingProducts->keys()->values()) }},
             datasets: [{
                 label: 'Qty Sold',
-                data: {!! json_encode($topSellingProducts->values()) !!},
+                data: {{ Js::from($topSellingProducts->values()) }},
                 backgroundColor: '#22c55e',
             }],
         },
@@ -432,9 +433,9 @@
     new Chart(getCtx('chart-earnings-category'), {
         type: 'doughnut',
         data: {
-            labels: {!! json_encode($earningsByCategory->keys()->values()) !!},
+            labels: {{ Js::from($earningsByCategory->keys()->values()) }},
             datasets: [{
-                data: {!! json_encode($earningsByCategory->values()) !!},
+                data: {{ Js::from($earningsByCategory->values()) }},
                 backgroundColor: palette,
             }],
         },
@@ -447,9 +448,9 @@
     new Chart(getCtx('chart-order-status'), {
         type: 'pie',
         data: {
-            labels: {!! json_encode($orderStatusDist->keys()->values()) !!},
+            labels: {{ Js::from($orderStatusDist->keys()->values()) }},
             datasets: [{
-                data: {!! json_encode($orderStatusDist->values()) !!},
+                data: {{ Js::from($orderStatusDist->values()) }},
                 backgroundColor: ['#22c55e','#f97316','#f43f5e','#6366f1','#eab308','#06b6d4'],
             }],
         },
@@ -462,10 +463,10 @@
     new Chart(getCtx('chart-purchase-freq'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($purchaseFrequency->keys()->values()) !!},
+            labels: {{ Js::from($purchaseFrequency->keys()->values()) }},
             datasets: [{
                 label: 'Orders',
-                data: {!! json_encode($purchaseFrequency->values()) !!},
+                data: {{ Js::from($purchaseFrequency->values()) }},
                 backgroundColor: '#6366f1',
             }],
         },
@@ -478,10 +479,10 @@
     new Chart(getCtx('chart-top-reviewed'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($topReviewedProducts->keys()->values()) !!},
+            labels: {{ Js::from($topReviewedProducts->keys()->values()) }},
             datasets: [{
                 label: 'Reviews',
-                data: {!! json_encode($topReviewedProducts->values()) !!},
+                data: {{ Js::from($topReviewedProducts->values()) }},
                 backgroundColor: '#eab308',
             }],
         },
@@ -498,10 +499,10 @@
     new Chart(getCtx('chart-top-buyers'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($topBuyers->keys()->values()) !!},
+            labels: {{ Js::from($topBuyers->keys()->values()) }},
             datasets: [{
                 label: '₱ Spent',
-                data: {!! json_encode($topBuyers->values()) !!},
+                data: {{ Js::from($topBuyers->values()) }},
                 backgroundColor: '#ec4899',
             }],
         },
@@ -518,10 +519,10 @@
     new Chart(getCtx('chart-top-categories'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($topCategories->keys()->values()) !!},
+            labels: {{ Js::from($topCategories->keys()->values()) }},
             datasets: [{
                 label: 'Units Sold',
-                data: {!! json_encode($topCategories->values()) !!},
+                data: {{ Js::from($topCategories->values()) }},
                 backgroundColor: palette,
             }],
         },
@@ -534,10 +535,10 @@
     new Chart(getCtx('chart-most-expensive'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($mostExpensiveProducts->keys()->values()) !!},
+            labels: {{ Js::from($mostExpensiveProducts->keys()->values()) }},
             datasets: [{
                 label: '₱ Price',
-                data: {!! json_encode($mostExpensiveProducts->values()) !!},
+                data: {{ Js::from($mostExpensiveProducts->values()) }},
                 backgroundColor: '#f97316',
             }],
         },
@@ -554,10 +555,10 @@
     new Chart(getCtx('chart-least-expensive'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($leastExpensiveProducts->keys()->values()) !!},
+            labels: {{ Js::from($leastExpensiveProducts->keys()->values()) }},
             datasets: [{
                 label: '₱ Price',
-                data: {!! json_encode($leastExpensiveProducts->values()) !!},
+                data: {{ Js::from($leastExpensiveProducts->values()) }},
                 backgroundColor: '#06b6d4',
             }],
         },
@@ -572,3 +573,4 @@
 </script>
 @endpush
 @endsection
+

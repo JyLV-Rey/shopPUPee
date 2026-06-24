@@ -1,3 +1,4 @@
+@use('Illuminate\Support\Js')
 @extends('common.index')
 
 @section('title', $buyer->first_name . ' ' . $buyer->last_name . ' — Buyer Dashboard')
@@ -274,9 +275,9 @@
     new Chart(getCtx('chart-top-categories'), {
         type: 'doughnut',
         data: {
-            labels: {!! json_encode($topCategories->keys()->values()) !!},
+            labels: {{ Js::from($topCategories->keys()->values()) }},
             datasets: [{
-                data: {!! json_encode($topCategories->values()) !!},
+                data: {{ Js::from($topCategories->values()) }},
                 backgroundColor: palette,
             }],
         },
@@ -289,10 +290,10 @@
     new Chart(getCtx('chart-spending-time'), {
         type: 'line',
         data: {
-            labels: {!! json_encode($spendingOverTime->keys()->values()) !!},
+            labels: {{ Js::from($spendingOverTime->keys()->values()) }},
             datasets: [{
                 label: 'Spent (₱)',
-                data: {!! json_encode($spendingOverTime->values()) !!},
+                data: {{ Js::from($spendingOverTime->values()) }},
                 borderColor: '#6366f1',
                 backgroundColor: 'rgba(99,102,241,0.15)',
                 fill: true,
@@ -309,10 +310,10 @@
     new Chart(getCtx('chart-spend-category'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($spendByCategory->keys()->values()) !!},
+            labels: {{ Js::from($spendByCategory->keys()->values()) }},
             datasets: [{
                 label: '₱ Spent',
-                data: {!! json_encode($spendByCategory->values()) !!},
+                data: {{ Js::from($spendByCategory->values()) }},
                 backgroundColor: palette,
             }],
         },
@@ -325,10 +326,10 @@
     new Chart(getCtx('chart-purchase-freq'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($purchaseFrequency->keys()->values()) !!},
+            labels: {{ Js::from($purchaseFrequency->keys()->values()) }},
             datasets: [{
                 label: 'Orders',
-                data: {!! json_encode($purchaseFrequency->values()) !!},
+                data: {{ Js::from($purchaseFrequency->values()) }},
                 backgroundColor: '#8b5cf6',
             }],
         },
@@ -341,10 +342,10 @@
     new Chart(getCtx('chart-top-products'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($topProducts->keys()->values()) !!},
+            labels: {{ Js::from($topProducts->keys()->values()) }},
             datasets: [{
                 label: 'Qty',
-                data: {!! json_encode($topProducts->values()) !!},
+                data: {{ Js::from($topProducts->values()) }},
                 backgroundColor: '#22c55e',
             }],
         },
@@ -363,7 +364,7 @@
             labels: ['⭐ 1', '⭐ 2', '⭐ 3', '⭐ 4', '⭐ 5'],
             datasets: [{
                 label: 'Reviews',
-                data: {!! json_encode($reviewRatings->values()) !!},
+                data: {{ Js::from($reviewRatings->values()) }},
                 backgroundColor: ['#f43f5e','#f97316','#eab308','#22c55e','#6366f1'],
             }],
         },
@@ -375,9 +376,9 @@
     new Chart(getCtx('chart-preferred-sellers'), {
         type: 'doughnut',
         data: {
-            labels: {!! json_encode($preferredSellers->keys()->values()) !!},
+            labels: {{ Js::from($preferredSellers->keys()->values()) }},
             datasets: [{
-                data: {!! json_encode($preferredSellers->values()) !!},
+                data: {{ Js::from($preferredSellers->values()) }},
                 backgroundColor: palette,
             }],
         },
@@ -390,9 +391,9 @@
     new Chart(getCtx('chart-payment-methods'), {
         type: 'pie',
         data: {
-            labels: {!! json_encode($paymentMethods->keys()->values()) !!},
+            labels: {{ Js::from($paymentMethods->keys()->values()) }},
             datasets: [{
-                data: {!! json_encode($paymentMethods->values()) !!},
+                data: {{ Js::from($paymentMethods->values()) }},
                 backgroundColor: palette,
             }],
         },
@@ -405,10 +406,10 @@
     new Chart(getCtx('chart-most-expensive'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($mostExpensiveItems->pluck('name')->values()) !!},
+            labels: {{ Js::from($mostExpensiveItems->pluck('name')->values()) }},
             datasets: [{
                 label: '₱ Price',
-                data: {!! json_encode($mostExpensiveItems->pluck('price')->values()) !!},
+                data: {{ Js::from($mostExpensiveItems->pluck('price')->values()) }},
                 backgroundColor: '#ec4899',
             }],
         },
@@ -425,10 +426,10 @@
     new Chart(getCtx('chart-least-expensive'), {
         type: 'bar',
         data: {
-            labels: {!! json_encode($leastExpensiveItems->pluck('name')->values()) !!},
+            labels: {{ Js::from($leastExpensiveItems->pluck('name')->values()) }},
             datasets: [{
                 label: '₱ Price',
-                data: {!! json_encode($leastExpensiveItems->pluck('price')->values()) !!},
+                data: {{ Js::from($leastExpensiveItems->pluck('price')->values()) }},
                 backgroundColor: '#06b6d4',
             }],
         },
@@ -443,3 +444,4 @@
 </script>
 @endpush
 @endsection
+
