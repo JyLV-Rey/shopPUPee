@@ -11,6 +11,7 @@
 
     <link rel="icon" type="image/png" href="/logo.png" />
     <title>@yield('title')</title>
+    @stack('head')
 </head>
 
 <body>
@@ -23,4 +24,5 @@
 
         @include('common.footer')
     </div>
+    @stack('scripts')
 </body>
