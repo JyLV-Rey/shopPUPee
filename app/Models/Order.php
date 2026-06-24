@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SoftDeletesFlag;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Table('order', 'order_id', 'int')]
 class Order extends Model
 {
+    use SoftDeletesFlag;
     public $timestamps = false;
 
     protected $fillable = [

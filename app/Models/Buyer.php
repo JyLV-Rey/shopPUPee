@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SoftDeletesFlag;
 use Database\Factories\BuyerFactory;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
 #[Table('buyer', 'buyer_id', 'int')]
 class Buyer extends Authenticatable
 {
+    use SoftDeletesFlag;
     /** @use HasFactory<BuyerFactory> */
     use HasFactory, Notifiable;
 

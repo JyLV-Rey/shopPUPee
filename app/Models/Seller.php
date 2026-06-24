@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SoftDeletesFlag;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Table('seller', 'seller_id', 'int')]
 class Seller extends Model
 {
+    use SoftDeletesFlag;
     public $timestamps = false;
 
     protected $fillable = [

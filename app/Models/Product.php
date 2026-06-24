@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\SoftDeletesFlag;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Table('product', 'product_id', 'int')]
 class Product extends Model
 {
+    use SoftDeletesFlag;
     const CREATED_AT = 'created_at';
     const UPDATED_AT = null;
 
