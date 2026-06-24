@@ -22,7 +22,7 @@ class DashboardController extends Controller
             ->join('order', 'order_item.order_id', '=', 'order.order_id')
             ->join('product', 'order_item.product_id', '=', 'product.product_id')
             ->where('order.buyer_id', $buyer->buyer_id)
-            ->where('order.is_deleted', false)
+            ->whereRaw('NOT order.is_deleted')
             ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
             ->sum(DB::raw('product.price * order_item.quantity'));
 
