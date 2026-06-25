@@ -25,28 +25,28 @@
                 </div>
             </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight">{{ $seller->seller_name }}</h1>
-                <p class="text-sm text-base-content/50">Seller Dashboard</p>
+                <h1 class="text-3xl font-bold tracking-tight">{{ $seller->seller_name }}</h1>
+                <p class="text-lg text-base-content/50">Seller Dashboard</p>
             </div>
         </div>
 
         {{-- Stat cards row --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
-                <div class="stat-title text-xs font-medium text-base-content/50 uppercase tracking-wider">Total Revenue</div>
+                <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Total Revenue</div>
                 <div class="stat-value text-lg text-success mt-1">₱{{ number_format($totalRevenue, 2) }}</div>
             </div>
             <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
-                <div class="stat-title text-xs font-medium text-base-content/50 uppercase tracking-wider">Products Listed
+                <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Products Listed
                 </div>
                 <div class="stat-value text-lg text-primary mt-1">{{ $totalProductsListed }}</div>
             </div>
             <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
-                <div class="stat-title text-xs font-medium text-base-content/50 uppercase tracking-wider">Items Sold</div>
+                <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Items Sold</div>
                 <div class="stat-value text-lg text-info mt-1">{{ $totalItemsSold }}</div>
             </div>
             <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
-                <div class="stat-title text-xs font-medium text-base-content/50 uppercase tracking-wider">Cancelled /
+                <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Cancelled /
                     Refunded</div>
                 <div class="stat-value text-lg text-error mt-1">{{ $totalCancelled }} / {{ $totalRefunded }}</div>
             </div>

@@ -21,7 +21,7 @@
             <div class="avatar placeholder">
                 <div
                     class="bg-gradient-to-br from-primary to-primary/70 text-primary-content rounded-2xl w-16 h-16 shadow-lg/10 flex items-center justify-center">
-                    <span class="text-2xl font-bold">{{ strtoupper(substr($buyer->first_name, 0, 1)) }}</span>
+                    <span class="text-2xl font-bold text-primary-content/90">{{ strtoupper(substr($buyer->first_name, 0, 1)) }}</span>
                 </div>
             </div>
             <div>
