@@ -92,15 +92,17 @@
                 @endif
 
                 {{-- Quick actions --}}
-                <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                <form method="POST" action="{{ route('cart.add') }}" class="flex flex-col sm:flex-row gap-3 mt-6">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->product_id }}">
                     <div class="join flex-1">
-                        <button class="btn btn-outline btn-sm join-item" onclick="decrementQty()">−</button>
-                        <input id="qty-input" type="number" value="1" min="1"
+                        <button type="button" class="btn btn-outline btn-sm join-item" onclick="decrementQty()">−</button>
+                        <input id="qty-input" type="number" name="quantity" value="1" min="1"
                             max="{{ $product->quantity ?? 999 }}"
                             class="input input-bordered input-sm join-item w-16 text-center" />
-                        <button class="btn btn-outline btn-sm join-item" onclick="incrementQty()">+</button>
+                        <button type="button" class="btn btn-outline btn-sm join-item" onclick="incrementQty()">+</button>
                     </div>
-                    <button class="btn btn-primary flex-1">
+                    <button type="submit" class="btn btn-primary flex-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -108,7 +110,7 @@
                         </svg>
                         Add to Cart
                     </button>
-                </div>
+                </form>
 
                 {{-- Seller card --}}
                 @if ($product->seller)

@@ -71,26 +71,37 @@ class OrderController extends Controller
     public function placeOrder(Request $request)
     {
         $request->validate([
-            'cart_item_ids' => 'required|string',
-            'address_id'    => 'required|integer',
+            'cart_item_ids'  => 'required|string',
+            'address_id'     => 'required|integer',
             'payment_method' => 'nullable|string|max:50',
             'courier_service' => 'nullable|string|max:50',
         ]);
 
-        $cartItemIds = array_filter(explode(',', $request->input('cart_item_ids')));
+        // Verify the address belongs to the authenticated user
+        $address = Address::where('address_id', $request->input('address_id'))
+            ->where('buyer_id', Auth::id())
+            ->first();
 
-        $cartItems = CartItem::with('product')
-            ->whereIn('cart_item_id', $cartItemIds)
-            ->where('buyer_id', Auth::user()->buyer_id)
-            ->get();
-
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart')->with('error', 'Cart items not found. Please try again.');
+        if (! $address) {
+            abort(403, 'The selected address does not belong to you.');
         }
+
+        $cartItemIds = array_filter(explode(',', $request->input('cart_item_ids')));
 
         $newOrderId = null;
 
-        DB::transaction(function () use ($cartItems, $request, &$newOrderId) {
+        try {
+            DB::transaction(function () use ($cartItemIds, $request, $address, &$newOrderId) {
+            // Lock the cart items to prevent concurrent duplicate orders
+            $cartItems = CartItem::with('product')
+                ->whereIn('cart_item_id', $cartItemIds)
+                ->where('buyer_id', Auth::id())
+                ->lockForUpdate()
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                throw new \RuntimeException('Cart items not found.');
+            }
             $order = Order::create([
                 'buyer_id'   => Auth::user()->buyer_id,
                 'status'     => 'Pending',
@@ -122,7 +133,10 @@ class OrderController extends Controller
 
             // Clear the purchased cart items
             CartItem::whereIn('cart_item_id', $cartItems->pluck('cart_item_id'))->delete();
-        });
+            });
+        } catch (\RuntimeException $e) {
+            return redirect()->route('cart')->with('error', $e->getMessage());
+        }
 
         return redirect()->route('product.receipt', ['orderId' => $newOrderId, 'justOrdered' => 'true']);
     }
@@ -143,10 +157,12 @@ class OrderController extends Controller
             'buyer',
         ])
             ->where('order_id', $orderId)
+            ->where('buyer_id', Auth::id())
             ->firstOrFail();
 
         $justOrdered = $request->boolean('justOrdered');
 
         return view('product.view_receipt', compact('order', 'justOrdered'));
     }
+
 }
