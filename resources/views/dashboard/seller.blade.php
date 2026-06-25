@@ -93,38 +93,30 @@
                 </div>
             </div>
 
+            @auth
+                @if (Auth::id() === $seller->buyer_id)
             <div class="card bg-base-100 border border-base-200 rounded-xl shadow-lg/10">
                 <div class="card-body p-5">
-                    <h2 class="card-title text-sm font-semibold text-base-content/80 tracking-wide uppercase mb-1">Quick
-                        Actions</h2>
+                    <h2 class="card-title text-sm font-semibold text-base-content/80 tracking-wide uppercase mb-1">Quick Actions</h2>
                     <div class="divider mt-1 mb-3"></div>
                     <div class="flex flex-col gap-2">
                         <a href="{{ route('product.create') }}" class="btn btn-secondary btn-sm justify-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Create Product
                         </a>
                         <a href="{{ route('edit.seller') }}" class="btn btn-outline btn-sm justify-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             Edit Store
                         </a>
                         <a href="{{ route('dashboard.buyer', $buyer) }}" class="btn btn-ghost btn-sm justify-start">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             Switch to Buyer View
                         </a>
                     </div>
                 </div>
             </div>
+                @endif
+            @endauth
         </div>
 
         {{-- Charts --}}
