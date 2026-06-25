@@ -46,16 +46,32 @@
                             </span>
                         </td>
                         <td class="text-center">
-                            <form method="POST" action="{{ route('admin.order.status', $order) }}" class="flex items-center gap-1 justify-center">
-                                @csrf
-                                <select name="status" class="select select-bordered select-xs w-24">
-                                    <option value="Paid" @selected($order->status === 'Paid')>Paid</option>
-                                    <option value="Shipped" @selected($order->status === 'Shipped')>Shipped</option>
-                                    <option value="Cancelled" @selected($order->status === 'Cancelled')>Cancel</option>
-                                    <option value="Refunded" @selected($order->status === 'Refunded')>Refund</option>
-                                </select>
-                                <button type="submit" class="btn btn-xs btn-outline">Update</button>
-                            </form>
+                            <div class="flex flex-col items-center gap-1">
+                                <form method="POST" action="{{ route('admin.order.status', $order) }}" class="flex items-center gap-1">
+                                    @csrf
+                                    <span class="text-[10px] text-base-content/40">Pay:</span>
+                                    <select name="status" class="select select-bordered select-xs w-24">
+                                        <option value="Paid" @selected($order->status === 'Paid')>Paid</option>
+                                        <option value="Shipped" @selected($order->status === 'Shipped')>Shipped</option>
+                                        <option value="Cancelled" @selected($order->status === 'Cancelled')>Cancel</option>
+                                        <option value="Refunded" @selected($order->status === 'Refunded')>Refund</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-xs btn-outline">Update</button>
+                                </form>
+                                @if ($order->delivery)
+                                <form method="POST" action="{{ route('delivery.status', $order->delivery) }}" class="flex items-center gap-1">
+                                    @csrf
+                                    <span class="text-[10px] text-base-content/40">Delivery:</span>
+                                    <select name="delivery_status" class="select select-bordered select-xs w-24">
+                                        <option value="Preparing" @selected($order->delivery->delivery_status === 'Preparing')>Preparing</option>
+                                        <option value="In Transit" @selected($order->delivery->delivery_status === 'In Transit')>In Transit</option>
+                                        <option value="Delivered" @selected($order->delivery->delivery_status === 'Delivered')>Delivered</option>
+                                        <option value="Failed" @selected($order->delivery->delivery_status === 'Failed')>Failed</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-xs btn-outline">Set</button>
+                                </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
