@@ -36,7 +36,7 @@
         @csrf
         {{-- Pass cart item IDs as hidden input --}}
         <input type="hidden" name="cart_item_ids"
-            value="{{ $cartItems->pluck('cart_item_id')->implode(',') }}">
+            value="{{ $cartItems->map(fn($i) => $i->cart_item_id . ':' . $i->quantity)->implode(',') }}">
 
         <div class="flex flex-col gap-6">
 

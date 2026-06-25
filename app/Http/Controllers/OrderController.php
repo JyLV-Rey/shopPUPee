@@ -42,7 +42,24 @@ class OrderController extends Controller
      */
     public function confirmOrder(Request $request)
     {
-        $cartItemIds = array_filter(explode(',', $request->query('cartItems', '')));
+        $raw = array_filter(explode(',', $request->query('cartItems', '')));
+
+        if (empty($raw)) {
+            return redirect()->route('cart')->with('error', 'No items selected for checkout.');
+        }
+
+        // Parse "id:qty" pairs; default qty to 1
+        $cartItemIds = [];
+        $localQtys = [];
+        foreach ($raw as $part) {
+            $parts = explode(':', $part);
+            $id = (int) $parts[0];
+            $qty = isset($parts[1]) ? (int) $parts[1] : 1;
+            if ($id > 0) {
+                $cartItemIds[] = $id;
+                $localQtys[$id] = max(1, $qty);
+            }
+        }
 
         if (empty($cartItemIds)) {
             return redirect()->route('cart')->with('error', 'No items selected for checkout.');
@@ -55,6 +72,13 @@ class OrderController extends Controller
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart')->with('error', 'Cart items not found.');
+        }
+
+        // Apply locally-changed quantities
+        foreach ($cartItems as $item) {
+            if (isset($localQtys[$item->cart_item_id])) {
+                $item->setAttribute('quantity', $localQtys[$item->cart_item_id]);
+            }
         }
 
         $total = $cartItems->sum(fn ($item) => $item->product->price * $item->quantity);
@@ -86,16 +110,27 @@ class OrderController extends Controller
             abort(403, 'The selected address does not belong to you.');
         }
 
-        $cartItemIds = collect(explode(',', $request->input('cart_item_ids')))
+        $raw = collect(explode(',', $request->input('cart_item_ids')))
             ->filter()
-            ->map(fn($id) => (int) $id)
             ->values()
             ->toArray();
+
+        $cartItemIds = [];
+        $localQtys = [];
+        foreach ($raw as $part) {
+            $parts = explode(':', $part);
+            $id = (int) $parts[0];
+            $qty = isset($parts[1]) ? (int) $parts[1] : 1;
+            if ($id > 0) {
+                $cartItemIds[] = $id;
+                $localQtys[$id] = max(1, $qty);
+            }
+        }
 
         $newOrderId = null;
 
         try {
-            DB::transaction(function () use ($cartItemIds, $request, $address, &$newOrderId) {
+            DB::transaction(function () use ($cartItemIds, $localQtys, $request, $address, &$newOrderId) {
             $cartItems = CartItem::with('product')
                 ->whereIn('cart_item_id', $cartItemIds)
                 ->where('buyer_id', Auth::id())
@@ -110,15 +145,16 @@ class OrderController extends Controller
             $newOrderId = $order->order_id;
 
             foreach ($cartItems as $item) {
+                $orderQty = $localQtys[$item->cart_item_id] ?? $item->quantity;
                 OrderItem::create([
                     'order_id'   => $order->order_id,
                     'product_id' => $item->product_id,
-                    'quantity'   => $item->quantity,
+                    'quantity'   => $orderQty,
                 ]);
 
                 // Decrement stock
                 if ($item->product->quantity !== null) {
-                    $item->product->decrement('quantity', $item->quantity);
+                    $item->product->decrement('quantity', $orderQty);
                 }
             }
             Payment::create([

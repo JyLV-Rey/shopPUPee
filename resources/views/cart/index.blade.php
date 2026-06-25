@@ -82,26 +82,14 @@
                                             ₱{{ number_format($product->price, 2) }} each</p>
 
                                         <div class="flex items-center gap-1 mt-2">
-                                            <form method="POST" action="{{ route('cart.update', $item->cart_item_id) }}">
-                                                @csrf
-                                                <input type="hidden" name="quantity"
-                                                    value="{{ max(1, $item->quantity - 1) }}" />
-                                                <button type="submit"
-                                                    class="btn btn-xs btn-square btn-ghost border border-base-300 leading-none"
-                                                    {{ $item->quantity <= 1 ? 'disabled' : '' }}>−</button>
-                                            </form>
+                                            <button type="button"
+                                                class="btn btn-xs btn-square btn-ghost border border-base-300 leading-none qty-minus"
+                                                data-max="{{ $product->quantity ?? 999 }}">−</button>
                                             <span
                                                 class="w-7 text-center text-sm font-semibold qty-display">{{ $item->quantity }}</span>
-                                            <form method="POST" action="{{ route('cart.update', $item->cart_item_id) }}">
-                                                @csrf
-                                                <input type="hidden" name="quantity" value="{{ $item->quantity + 1 }}" />
-                                                <button type="submit"
-                                                    class="btn btn-xs btn-square btn-ghost border border-base-300 leading-none"
-                                                    {{ $item->quantity >= $product->quantity ? 'disabled' : '' }}>+</button>
-                                            </form>
-                                            @if ($item->quantity >= $product->quantity)
-                                                <span class="text-error text-xs ml-1">Max</span>
-                                            @endif
+                                            <button type="button"
+                                                class="btn btn-xs btn-square btn-ghost border border-base-300 leading-none qty-plus"
+                                                data-max="{{ $product->quantity ?? 999 }}">+</button>
                                         </div>
                                     </div>
 
@@ -180,8 +168,51 @@
                 const totalEl = document.getElementById('selected-total');
                 const checkoutBtn = document.getElementById('checkout-btn');
 
+                // ── Local quantity changes (no DB hit) ──────────────────
+                document.querySelectorAll('.qty-minus').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const row = this.closest('[data-cart-item]');
+                        const qtyEl = row.querySelector('.qty-display');
+                        const subEl = row.querySelector('.subtotal');
+                        let qty = parseInt(row.dataset.qty);
+                        if (qty > 1) {
+                            qty--;
+                            row.dataset.qty = qty;
+                            qtyEl.textContent = qty;
+                            updateRow(row);
+                            updateSummary();
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.qty-plus').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const row = this.closest('[data-cart-item]');
+                        const qtyEl = row.querySelector('.qty-display');
+                        const max = parseInt(this.dataset.max) || 999;
+                        let qty = parseInt(row.dataset.qty);
+                        if (qty < max) {
+                            qty++;
+                            row.dataset.qty = qty;
+                            qtyEl.textContent = qty;
+                            updateRow(row);
+                            updateSummary();
+                        }
+                    });
+                });
+
+                function updateRow(row) {
+                    const price = parseFloat(row.dataset.price);
+                    const qty = parseInt(row.dataset.qty);
+                    const sub = row.querySelector('.subtotal');
+                    if (sub) sub.textContent = '₱' + (price * qty).toLocaleString('en-PH', {
+                        minimumFractionDigits: 2, maximumFractionDigits: 2
+                    });
+                }
+
+                // ── Summary from data attributes ────────────────────────
                 function updateSummary() {
-                    let selected = [];
+                    let items = [];
                     let count = 0;
                     let qty = 0;
                     let total = 0;
@@ -190,10 +221,10 @@
                         const cb = row.querySelector('.cart-select');
                         if (cb && cb.checked) {
                             const id = cb.value;
-                            selected.push(id);
+                            const q = parseInt(row.dataset.qty);
+                            items.push(id + ':' + q);
                             count++;
                             const price = parseFloat(row.dataset.price);
-                            const q = parseInt(row.dataset.qty);
                             qty += q;
                             total += price * q;
                         }
@@ -202,16 +233,15 @@
                     countEl.textContent = count;
                     qtyEl.textContent = qty;
                     totalEl.textContent = '₱' + total.toLocaleString('en-PH', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
+                        minimumFractionDigits: 2, maximumFractionDigits: 2
                     });
 
-                    if (selected.length === 0) {
+                    if (items.length === 0) {
                         checkoutBtn.classList.add('btn-disabled');
                         checkoutBtn.removeAttribute('href');
                     } else {
                         checkoutBtn.classList.remove('btn-disabled');
-                        checkoutBtn.href = '{{ route('product.confirm') }}?cartItems=' + selected.join(',');
+                        checkoutBtn.href = '{{ route("product.confirm") }}?cartItems=' + items.join(',');
                     }
                 }
 
