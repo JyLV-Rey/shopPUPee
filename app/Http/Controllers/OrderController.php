@@ -115,6 +115,11 @@ class OrderController extends Controller
                     'product_id' => $item->product_id,
                     'quantity'   => $item->quantity,
                 ]);
+
+                // Decrement stock
+                if ($item->product->quantity !== null) {
+                    $item->product->decrement('quantity', $item->quantity);
+                }
             }
             Payment::create([
                 'order_id'       => $order->order_id,
