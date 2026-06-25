@@ -21,8 +21,8 @@ Route::prefix('product')->name('product.')->group(function () {
 
 // Dashboard
 Route::prefix('dashboard')->name('dashboard.')->group(function () {
-    Route::get('/{buyer}/buyer', [DashboardController::class, 'buyer'])->name('buyer');
-    Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller');
+    Route::get('/{buyer}/buyer', [DashboardController::class, 'buyer'])->name('buyer')->whereNumber('buyer');
+    Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller')->whereNumber('seller');
 });
 
 //  Guest-only (not logged in) 
