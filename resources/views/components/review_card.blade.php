@@ -9,7 +9,12 @@
                 </div>
             </div>
             <div>
-                <p class="text-sm font-medium leading-tight">{{ $review->buyer?->first_name ?? 'Anonymous' }} {{ $review->buyer?->last_name ?? '' }}</p>
+                <p>
+                    <a href="{{ $review->buyer ? route('dashboard.buyer', $review->buyer) : '#' }}"
+                       class="text-sm font-medium leading-tight hover:underline hover:text-primary cursor-pointer transition-colors">
+                        {{ $review->buyer?->first_name ?? 'Anonymous' }} {{ $review->buyer?->last_name ?? '' }}
+                    </a>
+                </p>
                 <p class="text-xs text-base-content/40">{{ $review->created_at ? \Carbon\Carbon::parse($review->created_at)->format('M d, Y') : '' }}</p>
             </div>
         </div>

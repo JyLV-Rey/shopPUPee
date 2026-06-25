@@ -19,6 +19,12 @@ Route::prefix('product')->name('product.')->group(function () {
     Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
 });
 
+// Dashboard
+Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::get('/{buyer}/buyer', [DashboardController::class, 'buyer'])->name('buyer');
+    Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller');
+});
+
 //  Guest-only (not logged in) 
 Route::middleware('guest')->prefix('account')->name('account.')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -42,12 +48,6 @@ Route::middleware('check.user')->group(function () {
     Route::post('/cart/{cartItem}/update', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
-
-    // Dashboard
-    Route::prefix('dashboard')->name('dashboard.')->group(function () {
-        Route::get('/{buyer}/buyer', [DashboardController::class, 'buyer'])->name('buyer');
-        Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller');
-    });
 
     // Product (auth-only)
     Route::prefix('product')->name('product.')->group(function () {
