@@ -37,13 +37,13 @@
 
         {{-- Category pills --}}
         @if ($categories->isNotEmpty())
-            <div class="mb-14">
-                <div class="flex flex-wrap items-center gap-2 pb-2" id="category-strip">
+            <div class="mb-14 flex justify-center">
+                <div class="flex flex-wrap items-center justify-center gap-2 pb-2" id="category-strip">
                     <a href="{{ route('search') }}"
                         class="badge badge-outline badge-lg hover:badge-primary transition-colors cursor-pointer whitespace-nowrap">All</a>
                     @foreach ($categories as $category)
                         <a href="{{ route('search', ['searchCategory' => $category]) }}"
-                            class="badge badge-outline badge-lg hover:badge-primary transition-colors cursor-pointer text-center whitespace-normal text-wrap">
+                            class="badge badge-outline badge-lg hover:badge-primary transition-colors cursor-pointer text-center whitespace-normal self-center text-wrap">
                             {{ $category }}
                         </a>
                     @endforeach
