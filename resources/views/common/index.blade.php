@@ -18,7 +18,7 @@
     <div class="flex flex-col min-h-screen">
         @include('common.navbar')
 
-        <main class="flex-grow">
+        <main class="flex-grow bg-base-200">
             @yield('content')
         </main>
 
