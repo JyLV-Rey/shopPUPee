@@ -1,5 +1,8 @@
 import Chart from 'chart.js/auto';
 
+// Expose for inline scripts (e.g. dashboard Blade views)
+window.Chart = Chart;
+
 /**
  * Render a chart into a canvas element.
  *

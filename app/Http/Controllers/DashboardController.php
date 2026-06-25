@@ -26,6 +26,7 @@ class DashboardController extends Controller
             'mostExpensiveItems'    => collect($buyer->mostExpensiveItems()),
             'leastExpensiveItems'   => collect($buyer->leastExpensiveItems()),
         ]);
+
     }
 
     public function seller(Seller $seller)
