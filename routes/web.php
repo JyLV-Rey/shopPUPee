@@ -34,6 +34,8 @@ Route::middleware('check.user')->group(function () {
     });
 
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/{cartItem}/update', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
 
     // Dashboard
