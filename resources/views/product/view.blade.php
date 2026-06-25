@@ -134,6 +134,34 @@
             @endif
         </div>
 
+        {{-- Review submission form --}}
+        @auth
+            <form method="POST" action="{{ route('product.review', $product) }}" class="card bg-base-100 border border-base-200 rounded-xl p-5 mb-6">
+                @csrf
+                <h3 class="text-sm font-semibold text-base-content/70 uppercase tracking-wider mb-3">Write a Review</h3>
+
+                <div class="rating rating-lg mb-3" id="star-rating" x-data>
+                    <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-warning" required />
+                    <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-warning" />
+                    <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-warning" />
+                    <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-warning" />
+                    <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-warning" />
+                </div>
+
+                <textarea name="comment" class="textarea textarea-bordered w-full" rows="3" placeholder="Share your thoughts about this product... (optional)"></textarea>
+
+                <div class="flex justify-end mt-3">
+                    <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
+                </div>
+            </form>
+        @else
+            <div class="card bg-base-100 border border-base-200 rounded-xl p-5 mb-6">
+                <p class="text-sm text-base-content/50 text-center">
+                    <a href="{{ route('account.login') }}" class="link link-primary">Log in</a> to leave a review.
+                </p>
+            </div>
+        @endauth
+
         @if ($product->reviews->isNotEmpty())
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @foreach ($product->reviews as $review)
@@ -141,11 +169,11 @@
                 @endforeach
             </div>
         @else
-            <div class="text-center py-16 text-base-content/30">
+            <div class="text-center py-10 text-base-content/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                 </svg>
-                <p class="text-sm">This product has no reviews yet.</p>
+                <p class="text-sm">Be the first to review this product!</p>
             </div>
         @endif
     </div>

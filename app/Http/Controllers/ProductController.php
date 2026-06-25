@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,5 +82,34 @@ class ProductController extends Controller
         ]);
 
         return redirect()->route('product.view', $product)->with('success', 'Product Updated Successfully!');
+    }
+
+    public function storeReview(Request $request, Product $product)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $existing = Review::where('product_id', $product->product_id)
+            ->where('buyer_id', Auth::id())
+            ->first();
+
+        if ($existing) {
+            $existing->update([
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]);
+        } else {
+            Review::create([
+                'product_id' => $product->product_id,
+                'buyer_id' => Auth::id(),
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]);
+        }
+
+        return redirect()->route('product.view', $product)
+            ->with('success', $existing ? 'Review updated!' : 'Review submitted!');
     }
 }
