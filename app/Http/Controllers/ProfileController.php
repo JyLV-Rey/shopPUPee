@@ -20,13 +20,15 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:65',
             'last_name'  => 'required|string|max:65',
-            'email'      => 'required|email|max:65',
-            'phone'      => 'nullable|string|max:65', // Picked string because it can contain '+'
+            'email'      => 'required|email|max:65|unique:buyer,email,' . Auth::id() . ',buyer_id',
+            'phone'      => 'nullable|string|max:65',
         ]);
 
-        Auth::user()->update($validated);
- 
-        return redirect()->route('edit.buyer');
+        $user = Auth::user();
+        $user->update($validated);
+        $user->refresh();
+
+        return redirect()->route('edit.buyer')->with('success', 'Profile updated successfully.');
     }
 
     //  Seller profile
@@ -56,7 +58,7 @@ class ProfileController extends Controller
 
         $seller->update(['seller_name' => $validated['seller_name']]);
 
-        return redirect()->route('edit.seller');
+        return redirect()->route('dashboard.buyer', Auth::user());
     }
 
     public function editAddress(Request $request)
