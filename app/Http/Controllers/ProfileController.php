@@ -114,6 +114,6 @@ class ProfileController extends Controller
             'buyer_id' => Auth::user()->buyer_id,
         ]));
 
-        return redirect()->route('address.add');
+        return redirect()->route('address.add')->with('success', 'Address added successfully!');
     }
 }
