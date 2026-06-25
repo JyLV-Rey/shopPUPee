@@ -19,7 +19,8 @@
         {{-- Header --}}
         <div class="flex items-center gap-4 mb-8 pb-6 border-b border-base-200">
             <div class="avatar placeholder">
-                <div class="bg-gradient-to-br from-primary to-primary/70 text-primary-content rounded-2xl w-16 h-16 shadow-sm flex items-center justify-center">
+                <div
+                    class="bg-gradient-to-br from-primary to-primary/70 text-primary-content rounded-2xl w-16 h-16 shadow-lg/10 flex items-center justify-center">
                     <span class="text-2xl font-bold">{{ strtoupper(substr($buyer->first_name, 0, 1)) }}</span>
                 </div>
             </div>
@@ -31,20 +32,20 @@
 
         {{-- Stat cards row --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-sm p-4">
+            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
                 <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Total Spent</div>
                 <div class="stat-value text-lg text-success mt-1">₱{{ number_format($totalSpent, 2) }}</div>
             </div>
-            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-sm p-4">
+            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
                 <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Orders Placed
                 </div>
                 <div class="stat-value text-lg text-primary mt-1">{{ $totalOrdersPlaced }}</div>
             </div>
-            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-sm p-4">
+            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
                 <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Cancelled</div>
                 <div class="stat-value text-lg text-error mt-1">{{ $totalCancelledOrders }}</div>
             </div>
-            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-sm p-4">
+            <div class="stat bg-base-100 border border-base-200 rounded-xl shadow-lg/10 p-4">
                 <div class="stat-title text-lg font-bold text-base-content/50 uppercase tracking-wider">Refunds</div>
                 <div class="stat-value text-lg text-warning mt-1">{{ $totalRefunds }}</div>
             </div>
@@ -52,7 +53,7 @@
 
         {{-- Profile & Actions row --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="lg:col-span-2 card bg-base-100 border border-base-200 rounded-xl shadow-sm">
+            <div class="lg:col-span-2 card bg-base-100 border border-base-200 rounded-xl shadow-lg/10">
                 <div class="card-body p-5">
                     <h2 class="card-title text-sm font-semibold text-base-content/80 tracking-wide uppercase mb-1">Personal
                         Information</h2>
@@ -83,7 +84,7 @@
                 </div>
             </div>
 
-            <div class="card bg-base-100 border border-base-200 rounded-xl shadow-sm">
+            <div class="card bg-base-100 border border-base-200 rounded-xl shadow-lg/10">
                 <div class="card-body p-5">
                     <h2 class="card-title text-sm font-semibold text-base-content/80 tracking-wide uppercase mb-1">Quick
                         Actions</h2>

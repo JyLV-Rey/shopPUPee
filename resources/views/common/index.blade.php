@@ -15,14 +15,21 @@
 </head>
 
 <body>
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen relative z-10 bg-base-100/80 backdrop-blur-sm">
         @include('common.navbar')
 
-        <main class="flex-grow bg-base-200">
+        <main class="w-fit self-center min-h-screen">
             @yield('content')
         </main>
 
+
         @include('common.footer')
     </div>
+
+    <canvas id="bg-balls"
+        style="position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0;"></canvas>
+
+    @vite('resources/js/bg-balls.js')
+
     @stack('scripts')
 </body>
