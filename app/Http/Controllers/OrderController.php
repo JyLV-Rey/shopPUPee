@@ -86,22 +86,21 @@ class OrderController extends Controller
             abort(403, 'The selected address does not belong to you.');
         }
 
-        $cartItemIds = array_filter(explode(',', $request->input('cart_item_ids')));
+        $cartItemIds = collect(explode(',', $request->input('cart_item_ids')))
+            ->filter()
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->toArray();
 
         $newOrderId = null;
 
         try {
             DB::transaction(function () use ($cartItemIds, $request, $address, &$newOrderId) {
-            // Lock the cart items to prevent concurrent duplicate orders
             $cartItems = CartItem::with('product')
                 ->whereIn('cart_item_id', $cartItemIds)
                 ->where('buyer_id', Auth::id())
-                ->lockForUpdate()
                 ->get();
 
-            if ($cartItems->isEmpty()) {
-                throw new \RuntimeException('Cart items not found.');
-            }
             $order = Order::create([
                 'buyer_id'   => Auth::user()->buyer_id,
                 'status'     => 'Pending',
@@ -117,10 +116,9 @@ class OrderController extends Controller
                     'quantity'   => $item->quantity,
                 ]);
             }
-
             Payment::create([
                 'order_id'       => $order->order_id,
-                'payment_method' => $request->input('payment_method', 'Cash on Delivery'),
+                'payment_method' => $request->input('payment_method', 'COD'),
                 'payment_status' => 'Pending',
             ]);
 

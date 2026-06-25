@@ -226,14 +226,15 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         @foreach ([
-                            ['value' => 'Cash on Delivery', 'label' => 'Cash on Delivery', 'icon' => '💵'],
-                            ['value' => 'Credit/Debit Card', 'label' => 'Credit / Debit Card', 'icon' => '💳'],
-                            ['value' => 'Digital Wallet', 'label' => 'Digital Wallet', 'icon' => '📱'],
+                            ['value' => 'COD', 'label' => 'Cash on Delivery', 'icon' => '💵'],
+                            ['value' => 'Card', 'label' => 'Credit / Debit Card', 'icon' => '💳'],
+                            ['value' => 'Wallet', 'label' => 'Digital Wallet', 'icon' => '📱'],
+                            ['value' => 'UPI', 'label' => 'UPI', 'icon' => '🏦'],
                         ] as $method)
                             <label class="flex flex-col items-center gap-2 p-4 rounded-xl border border-base-300 cursor-pointer hover:bg-base-200 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5">
                                 <input type="radio" name="payment_method" value="{{ $method['value'] }}"
                                     class="radio radio-primary"
-                                    {{ $method['value'] === 'Cash on Delivery' ? 'checked' : '' }}>
+                                    {{ $method['value'] === 'COD' ? 'checked' : '' }}>
                                 <span class="text-2xl">{{ $method['icon'] }}</span>
                                 <span class="text-sm font-medium text-center">{{ $method['label'] }}</span>
                             </label>
