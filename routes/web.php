@@ -86,4 +86,12 @@ Route::middleware('check.admin')->prefix('dashboard/admin')->name('admin.')->gro
     Route::get('/order', [AdminController::class, 'orders'])->name('orders');
     Route::get('/application', [AdminController::class, 'applications'])->name('applications');
     Route::get('/product', [AdminController::class, 'products'])->name('products');
+
+    // Actions
+    Route::post('/buyer/{buyer}/toggle', [AdminController::class, 'toggleBuyer'])->name('buyer.toggle');
+    Route::post('/seller/{seller}/toggle', [AdminController::class, 'toggleSeller'])->name('seller.toggle');
+    Route::post('/product/{product}/toggle', [AdminController::class, 'toggleProduct'])->name('product.toggle');
+    Route::post('/order/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('order.status');
+    Route::post('/application/{application}/approve', [AdminController::class, 'approveApplication'])->name('application.approve');
+    Route::post('/application/{application}/reject', [AdminController::class, 'rejectApplication'])->name('application.reject');
 });
