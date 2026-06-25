@@ -24,13 +24,19 @@
 ## Features
 
 - **Buyer accounts** — register, login, manage profile and addresses
-- **Seller applications** — buyers apply to become sellers; admin approves
-- **Seller storefronts** — sellers create, edit, and manage products
-- **Shopping cart** — add items, adjust quantities, proceed to checkout
-- **Order management** — place orders, view receipts, track history
-- **Admin panel** — manage buyers, sellers, products, orders, and seller applications
-- **Soft-delete system** — entities are hidden rather than destroyed (`is_deleted` flag)
-- **Role-based access** — guest, authenticated buyer, seller, and admin tiers
+- **Seller applications** — buyers apply to become sellers; admin approves/rejects with DB transaction
+- **Product management** — sellers create, edit, update products with image gallery + reviews
+- **Shopping cart** — add items, local quantity changes (no DB hits), checkbox selection
+- **Order placement** — confirm order with address, payment method, courier selection; stock decremented
+- **Order tracking** — buyers view order history; sellers track outgoing orders + update delivery status
+- **Admin panel** — sidebar navigation to manage buyers, sellers, products, orders, and applications
+- **Soft-delete system** — disable/restore buyers, sellers, and products via admin panel
+- **Role-based access** — guest, buyer, seller, and admin tiers with middleware guards
+- **Product analytics** — price history, units sold, and earnings charts per product
+- **Dashboard charts** — 10 buyer analytics charts + 10 seller analytics charts (Chart.js)
+- **Review system** — star rating + comment with upsert logic; reviewer links to buyer dashboard
+- **Theme toggle** — light (garden) / dark (dim) with localStorage persistence
+- **Bouncing ball canvas** — decorative animated background that adapts to theme
 
 ---
 
@@ -40,86 +46,173 @@
 |---|---|
 | **Backend** | PHP 8.3+, Laravel 13 |
 | **Frontend** | Blade templates, Tailwind CSS 4, DaisyUI 5 |
+| **Charts** | Chart.js 4 auto-rendered via `data-chart` attributes |
 | **Build** | Vite 8 + `laravel-vite-plugin` |
-| **Database** | Supabase (PostgreSQL 15+) |
+| **Database** | Supabase (PostgreSQL 15+) with custom enums |
 | **Auth** | Session-based against `buyer` table |
+
+---
+
+## Route Map (46 routes)
+
+### Public (no auth required)
+
+| Method | URL | Purpose |
+|---|---|---|
+| GET | `/` | Home page — hero, search, trending & featured products |
+| GET | `/search` | Search with filters, sorting, pagination |
+| GET | `/product/{id}/view` | Product detail with gallery, reviews, charts |
+
+### Guest-only (not logged in)
+
+| Method | URL | Purpose |
+|---|---|---|
+| GET/POST | `/account/login` | Buyer login form + submit |
+| GET/POST | `/account/create` | Buyer registration |
+| GET/POST | `/account/create/seller` | Seller application form |
+
+### Authenticated (buyer)
+
+| Method | URL | Purpose |
+|---|---|---|
+| GET/POST | `/cart` / `/cart/add` | View cart / add item |
+| POST/DELETE | `/cart/{id}/update` / `/cart/{id}` | Update qty / remove item |
+| GET/POST | `/product/confirm_order` | Checkout page / place order |
+| GET | `/product/view_receipt` | Order receipt |
+| GET | `/orders` | Order history with status filter |
+| GET/POST | `/product/{id}/review` | Submit / update review |
+| GET | `/dashboard/{buyerId}/buyer` | Buyer dashboard (10 charts) |
+| GET/POST | `/edit/buyer` | Edit profile |
+| GET/POST | `/edit/address` | Edit address |
+| GET/POST | `/add/address` | Add address |
+
+### Authenticated (seller)
+
+| Method | URL | Purpose |
+|---|---|---|
+| GET/POST | `/product/create` | Create product |
+| GET/PUT | `/product/{id}/edit` | Edit product |
+| GET | `/dashboard/{sellerId}/seller` | Seller dashboard (10 charts) |
+| GET | `/dashboard/{sellerId}/orders` | Outgoing orders with delivery updates |
+| POST | `/delivery/{deliveryId}/status` | Update delivery status |
+| GET/POST | `/edit/seller` | Edit store profile |
+
+### Admin only
+
+| Method | URL | Purpose |
+|---|---|---|
+| GET | `/dashboard/admin/buyer` | Manage buyers (disable/restore) |
+| GET | `/dashboard/admin/seller` | Manage sellers (disable/restore) |
+| GET | `/dashboard/admin/order` | Manage orders (update status) |
+| GET | `/dashboard/admin/application` | Approve/reject seller applications |
+| GET | `/dashboard/admin/product` | Manage products (disable/restore) |
+| POST | `/dashboard/admin/*/toggle` | Toggle disable/restore on entities |
+| POST | `/dashboard/admin/application/*/approve` | Approve application (creates seller) |
+| POST | `/dashboard/admin/application/*/reject` | Reject application |
+
+### Middleware
+
+| Alias | Class | Behavior |
+|---|---|---|
+| `check.user` | `CheckUser` | Redirects to login if unauthenticated; checks `is_deleted` |
+| `check.admin` | `CheckAdmin` | Requires `is_admin = true`; 403 otherwise |
 
 ---
 
 ## Database Schema
 
-The database lives on **Supabase** and uses PostgreSQL. Below is the entity map — every table has a corresponding Eloquent model in `app/Models/`.
+All 15 tables in Supabase with Eloquent models in `app/Models/`.
 
-### Core Entities
+### Entity Relationships
 
 ```
-buyer ──┬── seller             (one buyer → one seller)
-        ├── address            (one buyer → many addresses)
-        ├── cartitem           (one buyer → many cart items)
-        ├── review             (one buyer → many reviews)
-        ├── seller_application (one buyer → many applications)
-        └── order              (one buyer → many orders)
+buyer ──┬── seller (HasOne)
+        ├── address (HasMany)
+        ├── cartitem (HasMany)
+        ├── review (HasMany)
+        ├── seller_application (HasMany)
+        └── order (HasMany)
 
-seller ──┬── product           (one seller → many products)
-         └── seller_application (one seller → one application)
+seller ──┬── product (HasMany)
+         └── seller_application (BelongsTo)
 
-product ──┬── product_image    (one product → many images)
-          ├── price_history    (one product → many price records)
-          ├── review           (one product → many reviews)
-          ├── cartitem         (one product → many cart items)
-          └── order_item       (one product → many order items)
+product ──┬── product_image (HasMany)
+          ├── price_history (HasMany)
+          ├── review (HasMany)
+          ├── cartitem (HasMany)
+          └── order_item (HasMany)
 
-order ──┬── order_item         (one order → many items)
-        ├── payment            (one order → one payment)
-        ├── delivery           (one order → one delivery)
-        ├── cancel             (one order → one cancel request)
-        └── refund             (one order → one refund request)
+order ──┬── order_item (HasMany)
+        ├── payment (HasOne)
+        ├── delivery (HasOne)
+        ├── cancel (HasOne)
+        └── refund (HasOne)
 ```
 
-### Key Design Notes
+### PostgreSQL Enums
 
-- **Authentication** is handled against the `buyer` table itself — no separate `users` table. Every buyer has `email` + `password` for login.
-- **Soft deletes** use an `is_deleted` boolean column across most entities instead of Laravel's built-in `SoftDeletes` trait.
-- **Admin status** is a simple `is_admin` boolean on the `buyer` table.
-- **Seller applications** are approved by admins — when approved, a `seller` row is created linked to the applicant's `buyer_id`.
-- **Custom PostgreSQL enums** are used for `order.status`, `delivery.delivery_status`, `payment.payment_method`, `payment.payment_status`, `seller_application.status`, and `refund.refund_status`.
+| Enum | Valid Values |
+|---|---|
+| `order_status` | `Pending`, `Paid`, `Shipped`, `Cancelled`, `Refunded` |
+| `delivery_status` | `Preparing`, `In Transit`, `Delivered`, `Failed`, `Returned`, `Cancelled` |
+| `payment_method` | `COD`, `Card`, `Wallet`, `UPI` |
+| `payment_status` | `Pending`, `Success`, `Failed`, `Refunded` |
+| `seller_status` | `Pending`, `Approved`, `Rejected` |
 
-### All Tables (15)
+### Key Design Decisions
 
-| Table | PK | Foreign Keys |
-|---|---|---|
-| `buyer` | `buyer_id` | — |
-| `seller` | `seller_id` | `buyer_id`, `address_id`, `application_id` |
-| `seller_application` | `application_id` | `buyer_id`, `address_id` |
-| `product` | `product_id` | `seller_id` |
-| `product_image` | `image_id` | `product_id` |
-| `price_history` | `history_id` | `product_id` |
-| `cartitem` | `cart_item_id` | `buyer_id`, `product_id` |
-| `order` | `order_id` | `buyer_id` |
-| `order_item` | `order_item_id` | `order_id`, `product_id` |
-| `payment` | `payment_id` | `order_id` |
-| `delivery` | `delivery_id` | `order_id`, `buyer_address_id` |
-| `address` | `address_id` | `buyer_id` |
-| `review` | `review_id` | `product_id`, `buyer_id` |
-| `cancel` | `cancel_id` | `order_id` |
-| `refund` | `refund_id` | `order_id` |
+- **Auth against `buyer`** — no separate `users` table; `Buyer extends Authenticatable`
+- **Soft deletes** — `is_deleted` boolean column (not Laravel's `SoftDeletes`)
+- **`SoftDeletesFlag` trait** — `scopeActive()` / `scopeDeleted()` for PostgreSQL-compatible boolean queries
+- **Route-model binding** — `{buyer}`, `{seller}`, `{product}` auto-resolve with `whereNumber` constraints
 
 ---
 
-## Routes
+## Project Structure
 
-The app exposes **33 named routes** organized by access level:
-
-| Group | Routes |
-|---|---|
-| **🌐 Public** | `/`, `/search`, `/product/view` |
-| **👤 Guest** | `/account/login`, `/account/create`, `/account/create/seller` |
-| **🔒 Authenticated** | `/dashboard/*`, `/cart`, `/orders`, `/product/*`, `/edit/*`, `/add/address` |
-| **🛡️ Admin** | `/dashboard/admin/buyer`, `/dashboard/admin/seller`, `/dashboard/admin/order`, `/dashboard/admin/application`, `/dashboard/admin/product` |
-
-All routes are defined in `routes/web.php` with named middlewares:
-- `check.user` — redirects unauthenticated users to login, checks `is_deleted`
-- `check.admin` — requires authentication + `is_admin = true`
+```
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/        # 9 controllers
+│   │   ├── Middleware/          # CheckUser, CheckAdmin
+│   ├── Models/
+│   │   ├── Buyer.php           # Authenticatable, dashboard aggregation methods
+│   │   ├── Seller.php          # Seller dashboard + order tracking methods
+│   │   ├── Product.php         # CRUD, relationships, scopes
+│   │   ├── Order.php           # Order lifecycle
+│   │   ├── ...
+│   │   └── Concerns/
+│   │       └── SoftDeletesFlag.php  # Reusable soft-delete trait
+├── bootstrap/app.php           # Middleware registration
+├── config/
+├── database/
+│   ├── factories/BuyerFactory.php
+│   └── seeders/DatabaseSeeder.php
+├── resources/
+│   ├── css/app.css             # Tailwind 4 + DaisyUI 5 with garden/dim themes
+│   ├── js/
+│   │   ├── app.js              # Theme switcher
+│   │   ├── charts.js           # Chart.js auto-renderer
+│   │   └── bg-balls.js         # Animated bouncing balls
+│   └── views/
+│       ├── common/             # Layout, navbar, footer
+│       ├── components/         # chart, product_box, product_gallery, review_card, pagination, admin_sidebar
+│       ├── home/               # Landing page
+│       ├── search/             # Search with filters
+│       ├── account/            # Login, register, seller application, edit profile
+│       ├── product/            # View, create, edit, confirm_order, view_receipt
+│       ├── cart/               # Shopping cart with local qty
+│       ├── orders/             # Buyer order history
+│       ├── dashboard/          # Buyer + seller dashboards, seller orders
+│       ├── address/            # Add/edit address
+│       └── admin/              # Buyers, sellers, orders, applications, products
+├── routes/web.php              # All 46 routes
+├── tasks/                      # Group assignment docs
+├── migration_info/             # Original React app reference
+├── composer.json
+├── package.json
+└── vite.config.js
+```
 
 ---
 
@@ -144,21 +237,19 @@ cp .env.example .env
 
 ### 3. Configure `.env`
 
-Update your `.env` with your Supabase database credentials:
-
 ```env
 DB_CONNECTION=pgsql
 DB_HOST=db.xxxxxxxxxxxx.supabase.co
 DB_PORT=5432
 DB_DATABASE=postgres
 DB_USERNAME=postgres
-DB_PASSWORD="your-password-with-#-if-needed"
+DB_PASSWORD="your-password"
 DB_SSLMODE=require
 ```
 
-> **Note:** If your password contains `#`, wrap it in double quotes.
+> If your password contains `#`, wrap it in double quotes.
 
-### 4. Generate app key & build assets
+### 4. Generate key & build
 
 ```bash
 php artisan key:generate
@@ -166,84 +257,17 @@ npm install
 npm run build
 ```
 
-### 5. Run the dev server
-
-For development with hot-reloading:
+### 5. Run
 
 ```bash
-# Terminal 1 — Laravel dev server
+# Terminal 1 — Laravel
 php artisan serve
 
 # Terminal 2 — Vite HMR
 npm run dev
 ```
 
-Or use the all-in-one dev script:
-
-```bash
-composer run dev
-```
-
-This fires up Laravel (`:8000`), queue listener, logs, and Vite concurrently.
-
----
-
-## Middleware
-
-| Middleware | Alias | What it does |
-|---|---|---|
-| `CheckUser` | `check.user` | Redirects to login if unauthenticated; logs out deactivated accounts |
-| `CheckAdmin` | `check.admin` | Requires authentication + `is_admin = true`; 403 otherwise |
-
-Both are registered in `bootstrap/app.php`.
-
----
-
-## Models
-
-All 15 Eloquent models live in `app/Models/` and use PHP 8 `#[Table]` attributes to declare table name, primary key, and key type:
-
-```php
-#[Table('buyer', 'buyer_id', 'int')]
-class Buyer extends Authenticatable { ... }
-```
-
-| Model | Table | Extends |
-|---|---|---|
-| `Buyer` | `buyer` | `Authenticatable` (auth-enabled) |
-| `Seller`, `SellerApplication` | `seller`, `seller_application` | `Model` |
-| `Product`, `ProductImage`, `PriceHistory` | `product`, etc. | `Model` |
-| `CartItem`, `Order`, `OrderItem` | `cartitem`, `order`, `order_item` | `Model` |
-| `Payment`, `Delivery`, `Address` | `payment`, `delivery`, `address` | `Model` |
-| `Review`, `Cancel`, `Refund` | `review`, `cancel`, `refund` | `Model` |
-
----
-
-## Project Structure
-
-```
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/    # 9 controllers (Home, Auth, Dashboard, Product, Cart, Order, Profile, Admin, Search)
-│   │   └── Middleware/      # CheckUser, CheckAdmin
-│   └── Models/              # 15 Eloquent models
-├── bootstrap/app.php        # App config + middleware registration
-├── config/                  # Laravel config files
-├── database/
-│   ├── factories/           # BuyerFactory
-│   ├── migrations/          # Default Laravel migrations
-│   └── seeders/             # DatabaseSeeder
-├── migration_info/          # Reference docs from the original React app
-├── resources/
-│   ├── css/app.css          # Tailwind + DaisyUI stylesheet
-│   ├── js/app.js            # Vite entry point
-│   └── views/               # Blade templates
-├── routes/
-│   └── web.php              # All 33 routes
-├── composer.json
-├── package.json
-└── vite.config.js           # Vite + Laravel plugin + Tailwind + DaisyUI
-```
+Or all-in-one: `composer run dev`
 
 ---
 
