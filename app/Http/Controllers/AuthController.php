@@ -70,7 +70,16 @@ class AuthController extends Controller
 
     public function showCreateSeller()
     {
-        return view('account.create_seller');
+        $existingApplication = SellerApplication::where('buyer_id', Auth::id())
+            ->orderBy('application_date', 'desc')
+            ->first();
+
+        $hasSeller = Auth::user()->seller !== null;
+
+        return view('account.create_seller', [
+            'existingApplication' => $existingApplication,
+            'hasSeller' => $hasSeller,
+        ]);
     }
 
     public function createSeller(Request $request)
