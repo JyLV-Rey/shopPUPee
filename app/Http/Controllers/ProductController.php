@@ -12,9 +12,49 @@ class ProductController extends Controller
 {
     public function view(Product $product)
     {
-        $product->load(['images', 'seller', 'reviews.buyer']);
+        $product->load(['images', 'seller', 'reviews.buyer', 'priceHistories']);
 
-        return view('product.view', compact('product'));
+        // Price over time
+        $priceHistory = $product->priceHistories
+            ->sortBy('date_set')
+            ->groupBy(fn($ph) => $ph->date_set ? \Carbon\Carbon::parse($ph->date_set)->format('Y-m-d') : 'Unknown')
+            ->map(fn($items) => $items->last()->price)
+            ->toArray();
+
+        // Units sold per month
+        $unitsSold = \Illuminate\Support\Facades\DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->where('order_item.product_id', $product->product_id)
+            ->whereRaw('NOT "order".is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select(
+                \Illuminate\Support\Facades\DB::raw("to_char(\"order\".ordered_at, 'YYYY-MM') as month"),
+                \Illuminate\Support\Facades\DB::raw('SUM(order_item.quantity) as total')
+            )
+            ->groupBy(\Illuminate\Support\Facades\DB::raw("to_char(\"order\".ordered_at, 'YYYY-MM')"))
+            ->orderBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Earnings per month
+        $earnings = \Illuminate\Support\Facades\DB::table('order_item')
+            ->join('order', 'order_item.order_id', '=', 'order.order_id')
+            ->where('order_item.product_id', $product->product_id)
+            ->whereRaw('NOT "order".is_deleted')
+            ->whereNotIn('order.status', ['Cancelled', 'Refunded'])
+            ->select(
+                \Illuminate\Support\Facades\DB::raw("to_char(\"order\".ordered_at, 'YYYY-MM') as month"),
+                \Illuminate\Support\Facades\DB::raw('SUM(order_item.quantity * product.price) as total')
+            )
+            ->join('product', 'order_item.product_id', '=', 'product.product_id')
+            ->groupBy(\Illuminate\Support\Facades\DB::raw("to_char(\"order\".ordered_at, 'YYYY-MM')"))
+            ->orderBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
+        return view('product.view', compact('product', 'priceHistory', 'unitsSold', 'earnings'));
     }
 
     public function create()
