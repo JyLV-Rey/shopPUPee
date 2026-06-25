@@ -5,7 +5,7 @@
 
     if (!toggle) return;
 
-    const LIGHT = 'cupcake';
+    const LIGHT = 'garden';
     const DARK = 'dim';
 
     // Initialize from localStorage — mirrors React's useState + JSON.parse

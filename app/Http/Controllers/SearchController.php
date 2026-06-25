@@ -57,7 +57,7 @@ class SearchController extends Controller
         $products = $query->with(['images', 'seller'])->orderBy($sortBy, $direction)->paginate(12);
 
         $categories = Product::active()
-            ->whereNotNull('category', true)
+            ->whereNotNull('category')
             ->distinct()
             ->pluck('category')
             ->sort()
