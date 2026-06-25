@@ -59,6 +59,12 @@ class ProductController extends Controller
 
     public function create()
     {
+        $seller = Auth::user()->seller;
+
+        if (! $seller) {
+            return redirect()->route('home')->with('error', 'You need an approved seller account to create products.');
+        }
+
         $categories = Product::select('category')->distinct()->pluck('category');
 
         return view('product.create', compact('categories'));
@@ -66,6 +72,12 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $seller = Auth::user()->seller;
+
+        if (! $seller) {
+            return redirect()->route('home')->with('error', 'You need an approved seller account to create products.');
+        }
+
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -76,7 +88,7 @@ class ProductController extends Controller
         ]);
 
         $product = Product::create([
-            'seller_id' => Auth::user()->seller->seller_id,
+            'seller_id' => $seller->seller_id,
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
             'price' => $validatedData['price'],
