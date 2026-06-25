@@ -60,26 +60,30 @@
         </label>
 
         @auth
-        <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full">
-                    <img alt="Avatar"
-                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+            @php $seller = Auth::user()->seller; @endphp
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full">
+                        <img alt="Avatar"
+                            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                    </div>
                 </div>
+                <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                    <li><a href="{{ route('dashboard.buyer', Auth::user()) }}">Profile</a></li>
+                    @if($seller)
+                        <li><a href="{{ route('dashboard.seller', $seller) }}">Store Profile</a></li>
+                    @endif
+                    <li><a href="{{ route('edit.buyer') }}">Settings</a></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left">Logout</button>
+                        </form>
+                    </li>
+                </ul>
             </div>
-            <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                <li><a>Profile <span class="badge">New</span></a></li>
-                <li><a href="{{ route('edit.buyer') }}">Settings</a></li>
-                <li>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full text-left">Logout</button>
-                    </form>
-                </li>
-            </ul>
-        </div>
         @else
-        <a href="{{ route('account.login') }}" class="btn btn-primary">Login</a>
+            <a href="{{ route('account.login') }}" class="btn btn-primary">Login</a>
         @endauth
     </div>
 </div>

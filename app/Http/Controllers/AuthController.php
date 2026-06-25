@@ -36,7 +36,7 @@ class AuthController extends Controller
             return back()->with('error', 'Account deactivated');
         }
 
-        Auth::login($buyer);
+        Auth::login($buyer->load('seller'));
         $request->session()->regenerate();
 
         return redirect()->route('home');
