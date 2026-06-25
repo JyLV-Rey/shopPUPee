@@ -54,7 +54,7 @@
                     <div class="stat py-2 px-3"><div class="stat-title text-xs">Total Items Sold</div><div class="stat-value text-primary" style="font-size:1.3rem">{{ $totalItemsSold }}</div></div>
                     <div class="stat py-2 px-3"><div class="stat-title text-xs">Cancelled / Refunded</div><div class="stat-value text-error" style="font-size:1.3rem">{{ $totalCancelled }} / {{ $totalRefunded }}</div></div>
                     @if($averageRating !== null)
-                    <div class="stat py-2 px-3"><div class="stat-title text-xs">Avg. Store Rating</div><div class="stat-value text-warning" style="font-size:1.3rem">{{ $averageRating }} ⭐</div></div>
+                    <div class="stat py-2 px-3"><div class="stat-title text-xs">Avg. Store Rating</div><div class="stat-value text-warning" style="font-size:1.3rem">{{ $averageRating }}</div></div>
                     @endif
                 </div>
                 <div class="card-actions justify-start mt-4 gap-2 flex-wrap">
@@ -70,70 +70,70 @@
 
         @if($monthlyEarnings->isNotEmpty())
         <x-chart id="chart-monthly-earnings" type="line"
-            :labels="$monthlyEarnings->keys()->toArray()" title="📈 Revenue Over Time"
+            :labels="$monthlyEarnings->keys()->toArray()" title="Revenue Over Time"
             :datasets="[['label' => 'Revenue (₱)', 'data' => $monthlyEarnings->values()->toArray(), 'borderColor' => '#8b5cf6', 'backgroundColor' => 'rgba(139,92,246,0.15)', 'fill' => true, 'tension' => 0.4, 'pointRadius' => 4]]"
             :options="['scales' => ['y' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($topSellingProducts->isNotEmpty())
         <x-chart id="chart-top-products" type="bar"
-            :labels="$topSellingProducts->keys()->toArray()" title="🏆 Top Selling Products"
+            :labels="$topSellingProducts->keys()->toArray()" title="Top Selling Products"
             :datasets="[['label' => 'Qty Sold', 'data' => $topSellingProducts->values()->toArray(), 'backgroundColor' => '#22c55e']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($earningsByCategory->isNotEmpty())
         <x-chart id="chart-earnings-category" type="doughnut"
-            :labels="$earningsByCategory->keys()->toArray()" title="🗂️ Earnings by Category"
+            :labels="$earningsByCategory->keys()->toArray()" title="Earnings by Category"
             :datasets="[['data' => $earningsByCategory->values()->toArray(), 'backgroundColor' => ['#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#14b8a6','#f43f5e']]]"
             :options="['plugins' => ['legend' => ['display' => true, 'position' => 'bottom']]]" />
         @endif
 
         @if($orderStatusDist->isNotEmpty())
         <x-chart id="chart-order-status" type="pie"
-            :labels="$orderStatusDist->keys()->toArray()" title="📦 Order Status Distribution"
+            :labels="$orderStatusDist->keys()->toArray()" title="Order Status Distribution"
             :datasets="[['data' => $orderStatusDist->values()->toArray(), 'backgroundColor' => ['#22c55e','#f97316','#f43f5e','#6366f1','#eab308','#06b6d4']]]"
             :options="['plugins' => ['legend' => ['display' => true, 'position' => 'bottom']]]" />
         @endif
 
         @if($purchaseFrequency->isNotEmpty())
         <x-chart id="chart-purchase-freq" type="bar"
-            :labels="$purchaseFrequency->keys()->toArray()" title="📅 Monthly Sales Volume"
+            :labels="$purchaseFrequency->keys()->toArray()" title="Monthly Sales Volume"
             :datasets="[['label' => 'Orders', 'data' => $purchaseFrequency->values()->toArray(), 'backgroundColor' => '#6366f1']]"
             :options="['scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['stepSize' => 1]]]]" />
         @endif
 
         @if($topReviewedProducts->isNotEmpty())
         <x-chart id="chart-top-reviewed" type="bar"
-            :labels="$topReviewedProducts->keys()->toArray()" title="⭐ Top Reviewed Products"
+            :labels="$topReviewedProducts->keys()->toArray()" title="Top Reviewed Products"
             :datasets="[['label' => 'Reviews', 'data' => $topReviewedProducts->values()->toArray(), 'backgroundColor' => '#eab308']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true, 'ticks' => ['stepSize' => 1]]]]" />
         @endif
 
         @if($topBuyers->isNotEmpty())
         <x-chart id="chart-top-buyers" type="bar"
-            :labels="$topBuyers->keys()->toArray()" title="👥 Top Buyers by Spend"
+            :labels="$topBuyers->keys()->toArray()" title="Top Buyers by Spend"
             :datasets="[['label' => '₱ Spent', 'data' => $topBuyers->values()->toArray(), 'backgroundColor' => '#ec4899']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($topCategories->isNotEmpty())
         <x-chart id="chart-top-categories" type="bar"
-            :labels="$topCategories->keys()->toArray()" title="📊 Top Categories by Units Sold"
+            :labels="$topCategories->keys()->toArray()" title="Top Categories by Units Sold"
             :datasets="[['label' => 'Units Sold', 'data' => $topCategories->values()->toArray(), 'backgroundColor' => ['#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#14b8a6','#f43f5e']]]"
             :options="['scales' => ['y' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($mostExpensiveProducts->isNotEmpty())
         <x-chart id="chart-most-expensive" type="bar"
-            :labels="$mostExpensiveProducts->keys()->toArray()" title="💎 Most Expensive Products"
+            :labels="$mostExpensiveProducts->keys()->toArray()" title="Most Expensive Products"
             :datasets="[['label' => '₱ Price', 'data' => $mostExpensiveProducts->values()->toArray(), 'backgroundColor' => '#f97316']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($leastExpensiveProducts->isNotEmpty())
         <x-chart id="chart-least-expensive" type="bar"
-            :labels="$leastExpensiveProducts->keys()->toArray()" title="🪙 Least Expensive Products"
+            :labels="$leastExpensiveProducts->keys()->toArray()" title="Least Expensive Products"
             :datasets="[['label' => '₱ Price', 'data' => $leastExpensiveProducts->values()->toArray(), 'backgroundColor' => '#06b6d4']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif
@@ -143,7 +143,7 @@
     @if($lowStockProducts->isNotEmpty())
     <div class="mb-8">
         <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-            <span class="badge badge-warning badge-lg">⚠</span> Low Stock Alerts
+            <span class="badge badge-warning badge-lg"></span> Low Stock Alerts
             <span class="badge badge-warning">{{ $lowStockProducts->count() }}</span>
         </h2>
         <div class="overflow-x-auto rounded-xl border border-base-200">

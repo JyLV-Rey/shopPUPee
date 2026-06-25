@@ -66,68 +66,68 @@
 
         @if($topCategories->isNotEmpty())
         <x-chart id="chart-top-categories" type="doughnut"
-            :labels="$topCategories->keys()->toArray()" title="🛍️ Top Categories"
+            :labels="$topCategories->keys()->toArray()" title="Top Categories"
             :datasets="[['data' => $topCategories->values()->toArray(), 'backgroundColor' => ['#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#14b8a6','#f43f5e']]]"
             :options="['plugins' => ['legend' => ['display' => true, 'position' => 'bottom']]]" />
         @endif
 
         @if($spendingOverTime->isNotEmpty())
         <x-chart id="chart-spending-time" type="line"
-            :labels="$spendingOverTime->keys()->toArray()" title="📈 Spending Over Time"
+            :labels="$spendingOverTime->keys()->toArray()" title="Spending Over Time"
             :datasets="[['label' => 'Spent (₱)', 'data' => $spendingOverTime->values()->toArray(), 'borderColor' => '#6366f1', 'backgroundColor' => 'rgba(99,102,241,0.15)', 'fill' => true, 'tension' => 0.4, 'pointRadius' => 4]]"
             :options="['scales' => ['y' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($spendByCategory->isNotEmpty())
         <x-chart id="chart-spend-category" type="bar"
-            :labels="$spendByCategory->keys()->toArray()" title="💰 Spend by Category"
+            :labels="$spendByCategory->keys()->toArray()" title="Spend by Category"
             :datasets="[['label' => '₱ Spent', 'data' => $spendByCategory->values()->toArray(), 'backgroundColor' => ['#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#14b8a6','#f43f5e']]]"
             :options="['scales' => ['y' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($purchaseFrequency->isNotEmpty())
         <x-chart id="chart-purchase-freq" type="bar"
-            :labels="$purchaseFrequency->keys()->toArray()" title="📅 Purchase Frequency"
+            :labels="$purchaseFrequency->keys()->toArray()" title="Purchase Frequency"
             :datasets="[['label' => 'Orders', 'data' => $purchaseFrequency->values()->toArray(), 'backgroundColor' => '#8b5cf6']]"
             :options="['scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['stepSize' => 1]]]]" />
         @endif
 
         @if($topProducts->isNotEmpty())
         <x-chart id="chart-top-products" type="bar"
-            :labels="$topProducts->keys()->toArray()" title="🏆 Top Products by Quantity"
+            :labels="$topProducts->keys()->toArray()" title="Top Products by Quantity"
             :datasets="[['label' => 'Qty', 'data' => $topProducts->values()->toArray(), 'backgroundColor' => '#22c55e']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif
 
         <x-chart id="chart-review-ratings" type="bar"
-            :labels="['⭐ 1', '⭐ 2', '⭐ 3', '⭐ 4', '⭐ 5']" title="⭐ Review Ratings"
+            :labels="['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars']" title="Review Ratings"
             :datasets="[['label' => 'Reviews', 'data' => $reviewRatings->values()->toArray(), 'backgroundColor' => ['#f43f5e','#f97316','#eab308','#22c55e','#6366f1']]]"
             :options="['scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['stepSize' => 1]]]]" />
 
         @if($preferredSellers->isNotEmpty())
         <x-chart id="chart-preferred-sellers" type="doughnut"
-            :labels="$preferredSellers->keys()->toArray()" title="🏪 Preferred Sellers"
+            :labels="$preferredSellers->keys()->toArray()" title="Preferred Sellers"
             :datasets="[['data' => $preferredSellers->values()->toArray(), 'backgroundColor' => ['#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#14b8a6','#f43f5e']]]"
             :options="['plugins' => ['legend' => ['display' => true, 'position' => 'bottom']]]" />
         @endif
 
         @if($paymentMethods->isNotEmpty())
         <x-chart id="chart-payment-methods" type="pie"
-            :labels="$paymentMethods->keys()->toArray()" title="💳 Payment Methods"
+            :labels="$paymentMethods->keys()->toArray()" title="Payment Methods"
             :datasets="[['data' => $paymentMethods->values()->toArray(), 'backgroundColor' => ['#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#14b8a6','#f43f5e']]]"
             :options="['plugins' => ['legend' => ['display' => true, 'position' => 'bottom']]]" />
         @endif
 
         @if($mostExpensiveItems->isNotEmpty())
         <x-chart id="chart-most-expensive" type="bar"
-            :labels="$mostExpensiveItems->pluck('name')->toArray()" title="💎 Most Expensive Items"
+            :labels="$mostExpensiveItems->pluck('name')->toArray()" title="Most Expensive Items"
             :datasets="[['label' => '₱ Price', 'data' => $mostExpensiveItems->pluck('price')->toArray(), 'backgroundColor' => '#ec4899']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif
 
         @if($leastExpensiveItems->isNotEmpty())
         <x-chart id="chart-least-expensive" type="bar"
-            :labels="$leastExpensiveItems->pluck('name')->toArray()" title="🪙 Least Expensive Items"
+            :labels="$leastExpensiveItems->pluck('name')->toArray()" title="Least Expensive Items"
             :datasets="[['label' => '₱ Price', 'data' => $leastExpensiveItems->pluck('price')->toArray(), 'backgroundColor' => '#06b6d4']]"
             :options="['indexAxis' => 'y', 'scales' => ['x' => ['beginAtZero' => true]]]" />
         @endif

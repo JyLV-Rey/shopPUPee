@@ -86,26 +86,24 @@ class Seller extends Model
 
     public function totalCancelled(): int
     {
-        return DB::table('order')
+        return (int) DB::table('order')
             ->join('order_item', 'order.order_id', '=', 'order_item.order_id')
             ->join('product', 'order_item.product_id', '=', 'product.product_id')
             ->where('product.seller_id', $this->seller_id)
             ->whereRaw('NOT "order".is_deleted')
             ->where('order.status', 'Cancelled')
-            ->distinct('order.order_id')
-            ->count('order.order_id');
+            ->count(DB::raw('DISTINCT "order".order_id'));
     }
 
     public function totalRefunded(): int
     {
-        return DB::table('order')
+        return (int) DB::table('order')
             ->join('order_item', 'order.order_id', '=', 'order_item.order_id')
             ->join('product', 'order_item.product_id', '=', 'product.product_id')
             ->where('product.seller_id', $this->seller_id)
             ->whereRaw('NOT "order".is_deleted')
             ->where('order.status', 'Refunded')
-            ->distinct('order.order_id')
-            ->count('order.order_id');
+            ->count(DB::raw('DISTINCT "order".order_id'));
     }
 
     public function averageRating(): ?float
