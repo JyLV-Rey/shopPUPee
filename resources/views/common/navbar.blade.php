@@ -1,6 +1,6 @@
 <div
     class="
-  bg-base-100/90 text-base-content sticky top-0 z-30 flex h-16 w-full [transform:translate3d(0,0,0)] justify-center backdrop-blur transition-shadow duration-100 print:hidden
+  bg-base-100/40 text-base-content sticky top-0 z-30 flex h-16 w-full [transform:translate3d(0,0,0)] justify-center backdrop-blur transition-shadow duration-100 print:hidden
   shadow-xs px-4
   ">
     <div class="navbar-start">
@@ -70,7 +70,7 @@
                 </div>
                 <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                     <li><a href="{{ route('dashboard.buyer', Auth::user()) }}">Profile</a></li>
-                    @if($seller)
+                    @if ($seller)
                         <li><a href="{{ route('dashboard.seller', $seller) }}">Store Profile</a></li>
                     @endif
                     <li><a href="{{ route('edit.buyer') }}">Settings</a></li>
