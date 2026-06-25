@@ -23,7 +23,10 @@ Route::prefix('product')->name('product.')->group(function () {
 Route::prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('/{buyer}/buyer', [DashboardController::class, 'buyer'])->name('buyer')->whereNumber('buyer');
     Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller')->whereNumber('seller');
+    Route::get('/{seller}/orders', [DashboardController::class, 'sellerOrders'])->name('seller.orders')->whereNumber('seller');
 });
+
+Route::post('/delivery/{delivery}/status', [DashboardController::class, 'updateDeliveryStatus'])->name('delivery.status');
 
 //  Guest-only (not logged in) 
 Route::middleware('guest')->prefix('account')->name('account.')->group(function () {

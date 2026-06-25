@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buyer;
+use App\Models\Order;
 use App\Models\Seller;
+use App\Models\Delivery;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -58,5 +62,31 @@ class DashboardController extends Controller
             'orderStatusDist'           => collect($seller->orderStatusDistribution()),
             'lowStockProducts'          => $seller->lowStockProducts(),
         ]);
+    }
+
+    public function sellerOrders(Seller $seller, Request $request)
+    {
+        $sort = $request->query('sort', 'desc') === 'asc' ? 'asc' : 'desc';
+        $status = $request->query('status');
+
+        $query = Order::with(['buyer', 'items.product', 'delivery', 'payment'])
+            ->whereHas('items.product', fn($q) => $q->where('seller_id', $seller->seller_id));
+
+        if ($status) {
+            $query->whereRaw('status::text = ?', [$status]);
+        }
+
+        $orders = $query->orderBy('ordered_at', $sort)->paginate(15);
+
+        return view('dashboard.seller_orders', compact('seller', 'orders'));
+    }
+
+    public function updateDeliveryStatus(Request $request, Delivery $delivery)
+    {
+        $request->validate(['delivery_status' => 'required|string']);
+
+        $delivery->update(['delivery_status' => $request->delivery_status]);
+
+        return back()->with('success', "Delivery status updated to {$request->delivery_status}.");
     }
 }

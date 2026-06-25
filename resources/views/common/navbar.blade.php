@@ -107,6 +107,7 @@
                     <li><a href="{{ route('dashboard.buyer', Auth::user()) }}">Profile</a></li>
                     @if ($seller)
                         <li><a href="{{ route('dashboard.seller', $seller) }}">Store Profile</a></li>
+                        <li><a href="{{ route('dashboard.seller.orders', $seller) }}">Orders Received</a></li>
                     @else
                         <li><a href="{{ route('account.create.seller') }}">Become a Seller</a></li>
                     @endif
