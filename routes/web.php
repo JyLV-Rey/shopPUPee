@@ -15,6 +15,10 @@ use App\Http\Controllers\AdminController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
+Route::prefix('product')->name('product.')->group(function () {
+    Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
+});
+
 //  Guest-only (not logged in) 
 Route::middleware('guest')->prefix('account')->name('account.')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -45,7 +49,7 @@ Route::middleware('check.user')->group(function () {
         Route::get('/{seller}/seller', [DashboardController::class, 'seller'])->name('seller');
     });
 
-    // Product
+    // Product (auth-only)
     Route::prefix('product')->name('product.')->group(function () {
         Route::get('/create', [ProductController::class, 'create'])->name('create');
         Route::post('/create', [ProductController::class, 'store']);
@@ -53,7 +57,6 @@ Route::middleware('check.user')->group(function () {
         Route::post('/confirm_order', [OrderController::class, 'placeOrder'])->name('place');
         Route::get('/view_receipt', [OrderController::class, 'viewReceipt'])->name('receipt');
 
-        Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
         Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
         Route::put('/{product}/update', [ProductController::class, 'update'])->name('update');
         Route::post('/{product}/review', [ProductController::class, 'storeReview'])->name('review');
