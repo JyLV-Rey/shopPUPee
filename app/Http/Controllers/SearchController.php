@@ -20,9 +20,9 @@ class SearchController extends Controller
 
             /// extra function to properly chain the OR conditions without affecting the rest of the query
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('description', 'like', "%{$searchTerm}%")
-                  ->orWhere('category', 'like', "%{$searchTerm}%");
+                $q->where('name', 'ilike', "%{$searchTerm}%")
+                  ->orWhere('description', 'ilike', "%{$searchTerm}%")
+                  ->orWhere('category', 'ilike', "%{$searchTerm}%");
             });
         }
 
@@ -39,7 +39,7 @@ class SearchController extends Controller
         // Store filter — search via the seller relation
         if ($searchStore = $request->query('searchStore')) {
             $query->whereHas('seller', function ($q) use ($searchStore) {
-                $q->where('seller_name', 'like', "%{$searchStore}%")
+                $q->where('seller_name', 'ilike', "%{$searchStore}%")
                   ->active();
             });
         }
