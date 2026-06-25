@@ -28,7 +28,7 @@ class OrderController extends Controller
             ->orderBy('ordered_at', $sort);
 
         if ($status) {
-            $query->where('status', $status);
+            $query->whereRaw('status::text = ?', [$status]);
         }
 
         $orders = $query->paginate(10);
