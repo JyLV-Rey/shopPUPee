@@ -76,12 +76,14 @@
                     <li><a href="{{ route('dashboard.buyer', Auth::user()) }}">Profile</a></li>
                     @if ($seller)
                         <li><a href="{{ route('dashboard.seller', $seller) }}">Store Profile</a></li>
+                    @else
+                        <li><a href="{{ route('account.create.seller') }}">Become a Seller</a></li>
                     @endif
                     <li><a href="{{ route('edit.buyer') }}">Settings</a></li>
-                    <li>
+                    <li class="border-t border-base-200 mt-1 pt-1">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left">Logout</button>
+                            <button type="submit" class="w-full text-left text-error hover:text-error/80 font-medium">Logout</button>
                         </form>
                     </li>
                 </ul>
