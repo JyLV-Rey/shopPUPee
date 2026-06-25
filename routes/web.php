@@ -47,6 +47,7 @@ Route::middleware('check.user')->group(function () {
         Route::get('/create', [ProductController::class, 'create'])->name('create');
         Route::post('/create', [ProductController::class, 'store']);
         Route::get('/confirm_order', [OrderController::class, 'confirmOrder'])->name('confirm');
+        Route::post('/confirm_order', [OrderController::class, 'placeOrder'])->name('place');
         Route::get('/view_receipt', [OrderController::class, 'viewReceipt'])->name('receipt');
 
         Route::get('/{product}/view', [ProductController::class, 'view'])->name('view');
