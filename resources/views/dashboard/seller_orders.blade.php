@@ -68,32 +68,18 @@
                         @endforeach
                     </div>
 
-                    {{-- Delivery status + Actions --}}
-                    <div class="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-base-200">
-                        <div class="flex items-center gap-2 text-xs text-base-content/50">
-                            <span>Delivery:</span>
-                            @if ($order->delivery)
-                            <span class="badge badge-sm badge-outline">{{ $order->delivery->delivery_status }}</span>
-                            @if ($order->delivery->courier_service)
-                                <span>via {{ $order->delivery->courier_service }}</span>
-                            @endif
-                            @else
-                            <span class="text-base-content/30">Not set</span>
-                            @endif
-                        </div>
-
-                        @if ($order->delivery && !in_array($order->status, ['Cancelled', 'Refunded']))
-                        <form method="POST" action="{{ route('delivery.status', $order->delivery) }}" class="flex items-center gap-1">
-                            @csrf
-                            <select name="delivery_status" class="select select-bordered select-xs w-32">
-                                <option value="Preparing" @selected($order->delivery->delivery_status === 'Preparing')>Preparing</option>
-                                <option value="In Transit" @selected($order->delivery->delivery_status === 'In Transit')>In Transit</option>
-                                <option value="Delivered" @selected($order->delivery->delivery_status === 'Delivered')>Delivered</option>
-                                <option value="Failed" @selected($order->delivery->delivery_status === 'Failed')>Failed</option>
-                            </select>
-                            <button type="submit" class="btn btn-xs btn-outline">Update</button>
-                        </form>
+                    {{-- Delivery status (read-only for sellers) --}}
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-base-content/50 mt-3 pt-3 border-t border-base-200">
+                        <span>Delivery:</span>
+                        @if ($order->delivery)
+                        <span class="badge badge-sm badge-outline">{{ $order->delivery->delivery_status }}</span>
+                        @if ($order->delivery->courier_service)
+                            <span>via {{ $order->delivery->courier_service }}</span>
                         @endif
+                        @else
+                        <span class="text-base-content/30">Not set</span>
+                        @endif
+                        <span class="text-base-content/20">· Managed by admin</span>
                     </div>
                 </div>
             </div>
